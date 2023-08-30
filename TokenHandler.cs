@@ -1,47 +1,64 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using raro_notifications.Models;
+using Microsoft.Net.Http.Headers;
+using RaroNotifications.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 
-namespace raro_notifications
+namespace RaroNotifications
 {
     public static class TokenHandler
     {
-        public static async Task<string> GetAccessToken(this IMemoryCache memoryCache, User user, string authUrl)
+        public static async Task<string?> GetAccessToken(this IMemoryCache memoryCache, User user, string authUrl)
         {
-            await memoryCache.GetOrCreateAsync("TOKEN", async entry =>
+            return await memoryCache.GetOrCreateAsync("TOKEN", async entry =>
             {
                 var tokenModel = await FetchAccessToken(user, authUrl);
-                var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
-
-                memoryCache.Set("TOKEN", tokenModel.Value, options);
-
-                return tokenModel.Value;
+                if (tokenModel != null)
+                {
+                    MemoryCacheEntryOptions options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddSeconds(30));
+                    memoryCache.Set("TOKEN", tokenModel.Value, options);
+                    return tokenModel.Value;
+                }
+                return null;
             });
-
-            return memoryCache.Get("TOKEN").ToString();
-
         }
 
-        private static async Task<TokenModel> FetchAccessToken(User user, string authUrl)
+        private static async Task<TokenModel?> FetchAccessToken(User user, string authUrl)
         {
-            HttpClient client = new();
+            using var httpClient = new HttpClient();
 
             var request = new HttpRequestMessage(HttpMethod.Post, authUrl);
 
             var credentials = JsonSerializer.Serialize(user);
 
-            request.Content = new StringContent(credentials);
+            request.Content = new StringContent(credentials, Encoding.UTF8, "application/json");
 
-            var response = await client.SendAsync(request);
+            var response = await httpClient.SendAsync(request);
 
-            var jwt = await response.Content.ReadAsStringAsync();
-
-            var handler = new JwtSecurityTokenHandler();
-
-            var validTo = handler.ReadJwtToken(jwt).ValidTo;
-
-            return new TokenModel { Value = jwt, ValidTo = validTo };
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    string accessToken = string.Empty;
+                    if (response.Headers.TryGetValues("Set-Cookie", out var cookieValues))
+                    {
+                        var cookies = SetCookieHeaderValue.ParseList(cookieValues.ToList());
+                        var accessTokenCookie = cookies.FirstOrDefault(cookie => cookie.Name == "access_token");
+                        if (accessTokenCookie != null)
+                        {
+                            accessToken = accessTokenCookie.Value.ToString();
+                        }
+                    }
+                    var handler = new JwtSecurityTokenHandler();
+                    var validTo = handler.ReadJwtToken(accessToken).ValidTo.ToLocalTime();
+                    return new TokenModel { Value = accessToken, ValidTo = validTo };
+                case HttpStatusCode.BadRequest:
+                    return null;
+                default:
+                    break;
+            }
+            return null;
         }
     }
 }

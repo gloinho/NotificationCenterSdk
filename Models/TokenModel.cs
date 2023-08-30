@@ -1,4 +1,4 @@
-﻿namespace raro_notifications.Models
+﻿namespace RaroNotifications.Models
 {
     public class TokenModel
     {
