@@ -2,15 +2,11 @@
 
 namespace RaroNotifications.Exceptions
 {
-    public class CredentialsException : Exception
+    public class CredentialsException : NotificationException
     {
-        public CredentialsException(HttpStatusCode statusCode, string message)
+        public CredentialsException(HttpStatusCode? statusCode, string message, DateTime timeStamp, string? detail = null, string? path = null) 
+            :base(statusCode, message, timeStamp, detail, path)
         {
-            StatusCode = statusCode;
-            Message = message;
-
         }
-        public HttpStatusCode StatusCode { get; set; }
-        public string Message { get; set; }
     }
 }

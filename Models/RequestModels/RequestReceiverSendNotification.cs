@@ -2,7 +2,7 @@
 using RaroNotifications.Exceptions;
 using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models.Notifications
+namespace RaroNotifications.Models.RequestModels
 {
     /// <summary>
     /// Modelo de receivers enviados para o Enginer API para envio de notificação./>.
@@ -23,9 +23,9 @@ namespace RaroNotifications.Models.Notifications
             Phone = phone;
             Email = email;
 
-            if(IsNotValidModel())
+            if (IsNotValidModel())
             {
-                throw new NotificationException(null, 
+                throw new NotificationException(null,
                     $"{nameof(RequestReceiverSendNotification)}: precisa de pelo menos uma propriedade preenchida.",
                     DateTime.Now);
             };
@@ -42,7 +42,7 @@ namespace RaroNotifications.Models.Notifications
 
         private bool IsNotValidModel()
         {
-            return 
+            return
                 IdentificadorUsuario.IsNullOrEmpty() &&
                 DeviceId.IsNullOrEmpty() &&
                 Phone.IsNullOrEmpty() &&

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models.Notifications
+namespace RaroNotifications.Models.RequestModels
 {
     /// <summary>
     /// Modelo de requisição enviados para o Enginer API para envio de notificação./>.

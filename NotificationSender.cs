@@ -2,7 +2,7 @@
 using RaroNotifications.Exceptions;
 using RaroNotifications.Handlers;
 using RaroNotifications.Models;
-using RaroNotifications.Models.Notifications;
+using RaroNotifications.Models.RequestModels;
 using RaroNotifications.Responses;
 using System.Net;
 using System.Text;
@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace RaroNotifications
 {
     /// <summary>
-    /// Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações/>.
+    /// Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
     /// </summary>
     public class NotificationSender
     {
@@ -45,12 +45,18 @@ namespace RaroNotifications
         /// </exception>
         /// <exception cref="HttpRequestException">
         /// Não foi possivel realizar a requisição.
+        /// </exception>   
+        /// <exception cref="CredentialsException">
+        /// Credenciais inválidas.
+        /// </exception>  
+        /// <exception cref="AccessTokenException">
+        /// Access Token inexistente ou inacessível.
         /// </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
             string accessToken = await _memoryCache.GetAccessToken(User, _authEndpoint);
 
-            HttpClient client = new();
+            HttpClient client = new HttpClient();
 
             var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
 
@@ -65,15 +71,12 @@ namespace RaroNotifications
 
                 var content = await response.Content.ReadAsStringAsync();
 
-                switch (response.StatusCode)
+                return response.StatusCode switch
                 {
-                    case HttpStatusCode.Created:
-                        return JsonSerializer.Deserialize<NotificationResponse>(content);
-                    case HttpStatusCode.BadRequest:
-                        throw JsonSerializer.Deserialize<NotificationException>(content);
-                    default:
-                        return null;
-                }
+                    HttpStatusCode.Created => JsonSerializer.Deserialize<NotificationResponse>(content),
+                    HttpStatusCode.BadRequest => throw JsonSerializer.Deserialize<NotificationException>(content),
+                    _ => null,
+                };
             }
             catch (HttpRequestException httpRequestException)
             {

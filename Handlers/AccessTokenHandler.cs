@@ -10,12 +10,6 @@ namespace RaroNotifications.Handlers
 {
     internal static class AccessTokenHandler
     {
-        /// <summary>
-        /// Recupera o Access Token (JWT) do Memory Cache.
-        /// </summary>
-        /// <param name="user">A instancia de <see cref="User"/> que representa o usuário a ser autenticado na rota de autenticação.</param>
-        /// <param name="authUrl">A rota de autenticação da Customer Api.</param>
-        /// <returns>O token JWT necessário para efetuar o envio de uma notificação.</returns>
         internal static async Task<string> GetAccessToken(this IMemoryCache memoryCache, User user, string authUrl)
         {
             var token = memoryCache.Get<string>("TOKEN");
@@ -30,22 +24,6 @@ namespace RaroNotifications.Handlers
             memoryCache.Set("TOKEN", tokenModel.Value, options);
             return tokenModel.Value;
         }
-
-        /// <summary>
-        /// Realiza a autenticação no <paramref name="authUrl"/> com as credenciais de <see cref="User"/> e resgata o JWT token.
-        /// </summary>
-        /// <param name="user">A instancia de <see cref="User"/> que representa o usuário a ser autenticado na rota de autenticação.</param>
-        /// <param name="authUrl">A rota de autenticação da Customer Api.</param>
-        /// <returns>A instancia de <see cref="AccessTokenModel"/> que contem o JWT autenticado e sua data de validade.</returns>
-        /// <exception cref="CredentialsException">
-        /// Credenciais de <see cref="User"/> incorretas ou inválidas./>
-        /// </exception> 
-        /// <exception cref="ArgumentNullException">
-        /// O AccessToken não pode ser resgatado do cookie pela requisição para a url <paramref name="authUrl"/>
-        /// </exception>
-        /// <exception cref="HttpRequestException">
-        /// Não foi possivel realizar a requisição para <paramref name="authUrl"/>
-        /// </exception> 
 
         private static async Task<AccessTokenModel> FetchAccessToken(User user, string authUrl)
         {
@@ -63,7 +41,8 @@ namespace RaroNotifications.Handlers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new CredentialsException(response.StatusCode, $"Credentials: {user.Username} - {user.Password}. {response.ReasonPhrase}.");
+                    var error = await response.Content.ReadAsStreamAsync();
+                    throw JsonSerializer.Deserialize<CredentialsException>(error);
                 }
 
                 if (response.Headers.TryGetValues("Set-Cookie", out var cookieValues))
@@ -77,7 +56,8 @@ namespace RaroNotifications.Handlers
                 }
                 else
                 {
-                    throw new ArgumentNullException(accessToken);
+                    var error = await response.Content.ReadAsStreamAsync();
+                    throw JsonSerializer.Deserialize<AccessTokenException>(error);
                 }
 
                 var handler = new JwtSecurityTokenHandler();

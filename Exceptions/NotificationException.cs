@@ -10,7 +10,7 @@ namespace RaroNotifications.Exceptions
         {
             
         }
-        public NotificationException(HttpStatusCode? statusCode,string message, DateTime timeStamp, string? detail = null, string? path=null) : base(message)
+        public NotificationException(HttpStatusCode? statusCode, string message, DateTime timeStamp, string? detail = null, string? path=null)
         {
             StatusCode = statusCode;
             Message = new List<string?> { message };
@@ -25,7 +25,7 @@ namespace RaroNotifications.Exceptions
         public List<string?> Message { get; set; }
         [JsonPropertyName("detail")]
         public string? Detail { get; set; }
-        [JsonPropertyName("timeStamp")]
+        [JsonPropertyName("timestamp")]
         public DateTime TimeStamp { get; set; }
         [JsonPropertyName("path")]
         public string? Path { get; set; }
