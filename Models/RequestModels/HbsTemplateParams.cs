@@ -1,7 +1,7 @@
 ﻿namespace RaroNotifications.Models.Notifications
 {
     /// <summary>
-    /// Classe responsável por armazenar parametros opcionais./>
+    /// Modelo de parametros opcionais enviados para o Enginer API para envio de notificação./>
     /// </summary>
     public class HbsTemplateParams
     {
