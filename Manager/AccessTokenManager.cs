@@ -6,11 +6,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json;
 
-namespace RaroNotifications.Handlers
+namespace RaroNotifications.Manager
 {
-    internal static class AccessTokenHandler
+    internal static class AccessTokenManager
     {
-        internal static async Task<string> GetAccessToken(this IMemoryCache memoryCache, User user, string authUrl)
+        internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache, User user, string authUrl, HttpClient httpClient)
         {
             var token = memoryCache.Get<string>("TOKEN");
             if (token != null)
@@ -18,26 +18,23 @@ namespace RaroNotifications.Handlers
                 return token;
             }
 
-            var tokenModel = await FetchAccessToken(user, authUrl);
+            var tokenModel = await FetchAccessToken(user, authUrl, httpClient);
 
             var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
             memoryCache.Set("TOKEN", tokenModel.Value, options);
             return tokenModel.Value;
         }
 
-        private static async Task<AccessTokenModel> FetchAccessToken(User user, string authUrl)
+        private static async Task<AccessTokenModel> FetchAccessToken(User user, string authUrl, HttpClient httpClient)
         {
-            using var httpClient = new HttpClient();
-
+            string accessToken = string.Empty;
             var request = new HttpRequestMessage(HttpMethod.Post, authUrl);
-
             var credentials = JsonSerializer.Serialize(user);
-
             request.Content = new StringContent(credentials, Encoding.UTF8, "application/json");
+
             try
             {
                 var response = await httpClient.SendAsync(request);
-                string accessToken = string.Empty;
 
                 if (!response.IsSuccessStatusCode)
                 {
