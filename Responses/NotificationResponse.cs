@@ -1,6 +1,4 @@
-﻿using RaroNotifications.Models.Notifications;
-
-namespace RaroNotifications.Responses
+﻿namespace RaroNotifications.Responses
 {
     public class NotificationResponse
     {

@@ -1,18 +1,16 @@
-﻿using RaroNotifications.Models;
-using System.Net;
+﻿using System.Net;
 
 namespace RaroNotifications.Exceptions
 {
     public class CredentialsException : Exception
     {
-        public CredentialsException(User user, HttpStatusCode statusCode, string message)
+        public CredentialsException(HttpStatusCode statusCode, string message)
         {
-            User = user;
             StatusCode = statusCode;
+            Message = message;
 
         }
         public HttpStatusCode StatusCode { get; set; }
         public string Message { get; set; }
-        public User User { get; set; }
     }
 }

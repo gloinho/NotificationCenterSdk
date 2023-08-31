@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using RaroNotifications.Exceptions;
+using RaroNotifications.Handlers;
 using RaroNotifications.Models;
 using RaroNotifications.Models.Notifications;
 using RaroNotifications.Responses;
@@ -9,6 +10,9 @@ using System.Text.Json;
 
 namespace RaroNotifications
 {
+    /// <summary>
+    /// Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações/>.
+    /// </summary>
     public class NotificationSender
     {
         private readonly string _authEndpoint = ":3001/api/notification/authentication/sign-in";
@@ -17,7 +21,7 @@ namespace RaroNotifications
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
-        /// Inicializa uma nova instancia de <see cref="NotificationSender"/>, responsável por realizar o envio de notificações.
+        /// Inicializa uma nova instancia de <see cref="NotificationSender"/>.
         /// </summary>
         /// <param name="memoryCache">A <see cref="IMemoryCache"/> instancia injetada do MemoryCache da aplicação.</param>
         /// <param name="baseUrl">A URL base a ser utilizada.</param>
@@ -34,7 +38,7 @@ namespace RaroNotifications
         /// <summary>
         /// Realiza requisição para o envio de uma notificação.
         /// </summary>
-        /// <param name="notification">A instancia da classe <see cref="RequestSendNotificationModel"/> que representa uma notificação a ser serializada e enviada na requisição</param>
+        /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
         /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
         /// <exception cref="NotificationException">
         /// Campos de <paramref name="notification"/> inválidos.
@@ -42,7 +46,7 @@ namespace RaroNotifications
         /// <exception cref="HttpRequestException">
         /// Não foi possivel realizar a requisição.
         /// </exception>
-        public async Task<NotificationResponse> SendNotification(RequestSendNotificationModel notification)
+        public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
             string accessToken = await _memoryCache.GetAccessToken(User, _authEndpoint);
 
@@ -64,11 +68,9 @@ namespace RaroNotifications
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.Created:
-                        var success = JsonSerializer.Deserialize<NotificationResponse>(content);
-                        return success;
+                        return JsonSerializer.Deserialize<NotificationResponse>(content);
                     case HttpStatusCode.BadRequest:
-                        var exception = JsonSerializer.Deserialize<NotificationException>(content);
-                        throw exception;
+                        throw JsonSerializer.Deserialize<NotificationException>(content);
                     default:
                         return null;
                 }
@@ -77,17 +79,6 @@ namespace RaroNotifications
             {
                 throw httpRequestException;
             }
-
         }
-
-        //private static void ValidateReceiver(RequestReceiverSendNotification receiver)
-        //{
-        //    if (!receiver.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic |
-        //                    BindingFlags.Static | BindingFlags.Instance)
-        //        .Any(property => property.CanRead && property.GetValue(receiver, null) != null))
-        //    {
-        //        throw new Exception();
-        //    }
-        //}
     }
 }

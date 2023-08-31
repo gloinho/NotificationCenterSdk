@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 namespace RaroNotifications.Models
 {
-    public class User
+    internal class User
     {
         [JsonPropertyName("userName")]
         public string Username { get; set; }

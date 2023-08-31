@@ -4,8 +4,18 @@ using System.Text.Json.Serialization;
 
 namespace RaroNotifications.Models.Notifications
 {
+    /// <summary>
+    /// Modelo de receivers enviados para o Enginer API para envio de notificação./>.
+    /// </summary>
     public class RequestReceiverSendNotification
     {
+        /// <summary>
+        /// Inicializa uma nova instancia de <see cref="RequestReceiverSendNotification"/>.
+        /// </summary>
+        /// <param name="identificadorUsuario">Id do usuário a receber a notificação.</param>
+        /// <param name="deviceId">Id do Aparelho a receber a notificação.</param>
+        /// <param name="phone">Número a receber a notificação.</param>
+        /// <param name="email">Email a receber notificação.</param>
         public RequestReceiverSendNotification(string? identificadorUsuario, string? deviceId, string? phone, string? email)
         {
             IdentificadorUsuario = identificadorUsuario;
