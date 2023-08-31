@@ -3,7 +3,6 @@ using Microsoft.Net.Http.Headers;
 using RaroNotifications.Exceptions;
 using RaroNotifications.Models;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -17,12 +16,6 @@ namespace RaroNotifications
         /// <param name="user">A instancia de <see cref="User"/> que representa o usuário a ser autenticado na rota de autenticação.</param>
         /// <param name="authUrl">A rota de autenticação da Customer Api.</param>
         /// <returns>O token JWT necessário para efetuar o envio de uma notificação.</returns>
-        /// <exception cref="NotificationException">
-        /// <paramref name="isbn"/> is <c>null</c>.
-        /// </exception>
-        /// <exception cref="System.ArgumentException">
-        /// <paramref name="isbn"/> is an empty or white-space string.
-        /// </exception>
         public static async Task<string> GetAccessToken(this IMemoryCache memoryCache, User user, string authUrl)
         {
             var token = memoryCache.Get<string>("TOKEN");
@@ -38,6 +31,22 @@ namespace RaroNotifications
             return tokenModel.Value;
         }
 
+        /// <summary>
+        /// Realiza a autenticação no <paramref name="authUrl"/> com as credenciais de <see cref="User"/> e resgata o JWT token.
+        /// </summary>
+        /// <param name="user">A instancia de <see cref="User"/> que representa o usuário a ser autenticado na rota de autenticação.</param>
+        /// <param name="authUrl">A rota de autenticação da Customer Api.</param>
+        /// <returns>A instancia de <see cref="TokenModel"/> que contem o JWT autenticado e sua data de validade.</returns>
+        /// <exception cref="CredentialsException">
+        /// Credenciais de <see cref="User"/> incorretas ou inválidas./>
+        /// </exception> 
+        /// <exception cref="ArgumentNullException">
+        /// O AccessToken não pode ser resgatado do cookie pela requisição para a url <paramref name="authUrl"/>
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        /// Não foi possivel realizar a requisição para <paramref name="authUrl"/>
+        /// </exception> 
+
         private static async Task<TokenModel> FetchAccessToken(User user, string authUrl)
         {
             using var httpClient = new HttpClient();
@@ -52,6 +61,11 @@ namespace RaroNotifications
                 var response = await httpClient.SendAsync(request);
                 string accessToken = string.Empty;
 
+                if (!response.IsSuccessStatusCode) 
+                {
+                    throw new CredentialsException(user, response.StatusCode, response.ReasonPhrase);
+                }
+
                 if (response.Headers.TryGetValues("Set-Cookie", out var cookieValues))
                 {
                     var cookies = SetCookieHeaderValue.ParseList(cookieValues.ToList());
@@ -63,7 +77,7 @@ namespace RaroNotifications
                 }
                 else
                 {
-                    throw new NotificationException(HttpStatusCode.BadRequest, $"Wrong Credentials: Access Token error. Url: {authUrl} ", DateTime.Now, path:authUrl);
+                    throw new ArgumentNullException(accessToken);
                 }
 
                 var handler = new JwtSecurityTokenHandler();
@@ -73,9 +87,9 @@ namespace RaroNotifications
                 return new TokenModel { Value = accessToken, ValidTo = validTo };
 
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException httpException)
             {
-                throw new NotificationException(ex.StatusCode, ex.Message ,DateTime.Now);
+                throw httpException;
             }
         }
     }

@@ -16,6 +16,13 @@ namespace RaroNotifications
         private User User { get; set; }
         private readonly IMemoryCache _memoryCache;
 
+        /// <summary>
+        /// Inicializa uma nova instancia de <see cref="NotificationSender"/>, responsável por realizar o envio de notificações.
+        /// </summary>
+        /// <param name="memoryCache">A <see cref="IMemoryCache"/> instancia injetada do MemoryCache da aplicação.</param>
+        /// <param name="baseUrl">A URL base a ser utilizada.</param>
+        /// <param name="username">O usuário a ser autenticado.</param>
+        /// <param name="password">A senha do usuário a ser autenticado</param>
         public NotificationSender(IMemoryCache memoryCache, string baseUrl, string username, string password)
         {
             _authEndpoint = baseUrl + _authEndpoint;
@@ -24,6 +31,17 @@ namespace RaroNotifications
             _memoryCache = memoryCache;
         }
 
+        /// <summary>
+        /// Realiza requisição para o envio de uma notificação.
+        /// </summary>
+        /// <param name="notification">A instancia da classe <see cref="RequestSendNotificationModel"/> que representa uma notificação a ser serializada e enviada na requisição</param>
+        /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
+        /// <exception cref="NotificationException">
+        /// Campos de <paramref name="notification"/> inválidos.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        /// Não foi possivel realizar a requisição.
+        /// </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotificationModel notification)
         {
             string accessToken = await _memoryCache.GetAccessToken(User, _authEndpoint);
@@ -55,9 +73,9 @@ namespace RaroNotifications
                         return null;
                 }
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException httpRequestException)
             {
-                throw new NotificationException(ex.StatusCode, ex.Message, DateTime.Now);
+                throw httpRequestException;
             }
 
         }
