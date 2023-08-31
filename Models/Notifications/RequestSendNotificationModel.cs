@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models
+namespace RaroNotifications.Models.Notifications
 {
     public class RequestSendNotificationModel
     {

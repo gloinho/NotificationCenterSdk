@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using RaroNotifications.Exceptions;
 using RaroNotifications.Models;
+using RaroNotifications.Models.Notifications;
 using RaroNotifications.Responses;
-using System.Reflection;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -22,54 +24,52 @@ namespace RaroNotifications
             _memoryCache = memoryCache;
         }
 
-        public async Task<NotificationSuccess> SendNotification(RequestSendNotificationModel notification)
+        public async Task<NotificationResponse> SendNotification(RequestSendNotificationModel notification)
         {
-            ValidateReceiver(notification.Receiver);
-
             string accessToken = await _memoryCache.GetAccessToken(User, _authEndpoint);
 
-            if (accessToken != null)
+            HttpClient client = new();
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
+
+            var json = JsonSerializer.Serialize(notification);
+
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            try
             {
-                HttpClient client = new();
-
-                var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
-
-                var json = JsonSerializer.Serialize(notification);
-
-                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                request.Headers.Add("Authorization", $"Bearer {accessToken}");
-
                 var response = await client.SendAsync(request);
 
                 var content = await response.Content.ReadAsStringAsync();
 
                 switch (response.StatusCode)
                 {
-                    case System.Net.HttpStatusCode.Created:
-                        var success = JsonSerializer.Deserialize<NotificationSuccess>(content);
+                    case HttpStatusCode.Created:
+                        var success = JsonSerializer.Deserialize<NotificationResponse>(content);
                         return success;
-                    case System.Net.HttpStatusCode.BadRequest:
+                    case HttpStatusCode.BadRequest:
                         var exception = JsonSerializer.Deserialize<NotificationException>(content);
                         throw exception;
                     default:
                         return null;
                 }
             }
-            else
+            catch (HttpRequestException ex)
             {
-                throw new NotificationException() { Message = new List<string> { "Access Token não pode ser null." }, TimeStamp = DateTime.Now };
+                throw new NotificationException(ex.StatusCode, ex.Message, DateTime.Now);
             }
+
         }
 
-        private static void ValidateReceiver(RequestReceiverSendNotification receiver)
-        {
-            if (!receiver.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic |
-                            BindingFlags.Static | BindingFlags.Instance)
-                .Any(property => property.CanRead && property.GetValue(receiver, null) != null))
-            {
-                throw new NotificationException();
-            }
-        }
+        //private static void ValidateReceiver(RequestReceiverSendNotification receiver)
+        //{
+        //    if (!receiver.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic |
+        //                    BindingFlags.Static | BindingFlags.Instance)
+        //        .Any(property => property.CanRead && property.GetValue(receiver, null) != null))
+        //    {
+        //        throw new Exception();
+        //    }
+        //}
     }
 }

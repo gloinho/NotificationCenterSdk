@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.IdentityModel.Tokens;
+using RaroNotifications.Exceptions;
+using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models
+namespace RaroNotifications.Models.Notifications
 {
     public class RequestReceiverSendNotification
     {
@@ -10,6 +12,13 @@ namespace RaroNotifications.Models
             DeviceId = deviceId;
             Phone = phone;
             Email = email;
+
+            if(IsNotValidModel())
+            {
+                throw new NotificationException(null, 
+                    $"{nameof(RequestReceiverSendNotification)}: precisa de pelo menos uma propriedade preenchida.",
+                    DateTime.Now);
+            };
         }
 
         [JsonPropertyName("identificadorUsuario")]
@@ -20,5 +29,14 @@ namespace RaroNotifications.Models
         public string? Phone { get; set; }
         [JsonPropertyName("email")]
         public string? Email { get; set; }
+
+        private bool IsNotValidModel()
+        {
+            return 
+                IdentificadorUsuario.IsNullOrEmpty() &&
+                DeviceId.IsNullOrEmpty() &&
+                Phone.IsNullOrEmpty() &&
+                Email.IsNullOrEmpty();
+        }
     }
 }

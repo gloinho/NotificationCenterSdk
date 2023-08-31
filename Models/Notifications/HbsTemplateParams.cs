@@ -1,4 +1,4 @@
-﻿namespace RaroNotifications.Models
+﻿namespace RaroNotifications.Models.Notifications
 {
     public class HbsTemplateParams
     {
