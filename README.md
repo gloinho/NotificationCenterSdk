@@ -8,7 +8,7 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ```json
 {
     "NotificationSender": {
-        "CustomerBaseUrl": "https://customer-api.example.com",
+        "AuthBaseUrl": "https://auth-api.example.com",
         "EnginerBaseUrl": "https://enginer-api.example.com",
         "Username": "seu-username",
         "Password": "sua-senha"
@@ -38,6 +38,26 @@ builder.Services.AddNotificationSender(builder.Configuration);
         public async Task<ActionResult<NotificationResponse>> SendNotification(RequestSendNotification model)
         {
             var response = await _notificationSender.SendNotification(model);
+            return response;
+        }
+    }
+```
+---
+```csharp
+    public class ExampleController : ControllerBase
+    {
+        private readonly INotificationSender _notificationSender;
+        public ExampleController(INotificationSender notificationSender)
+        {
+            _notificationSender = notificationSender;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<NotificationResponse>> SendNotification(RequestSendNotification model)
+        {
+            var token = await _notificationSender.Authenticate();
+            // Realizar tratativas para armazenamento de token.
+            var response = await _notificationSender.SendNotification(model,token);
             return response;
         }
     }
