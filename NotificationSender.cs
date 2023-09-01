@@ -21,7 +21,7 @@ namespace RaroNotifications
         private readonly HttpClient _customerHttpClient;
         private readonly HttpClient _enginerHttpClient;
         private readonly IMemoryCache _memoryCache;
-        private User User { get; set; }
+        private readonly UserCredentials _userCredentials;
 
         /// <summary>
         /// Inicializa uma nova instancia de <see cref="NotificationSender"/>.
@@ -30,9 +30,9 @@ namespace RaroNotifications
         /// <param name="httpClientFactory">A instancia <see cref="IHttpClientFactory"/> injetada do HttpClientFactory.</param>
         /// <param name="username">O usuário a ser autenticado.</param>
         /// <param name="password">A senha do usuário a ser autenticado</param>
-        public NotificationSender(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, string username, string password)
+        public NotificationSender(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, UserCredentials userCredentials)
         {
-            User = new User { Username = username, Password = password };
+            _userCredentials = userCredentials;
             _memoryCache = memoryCache;
             _customerHttpClient = httpClientFactory.CreateClient("customer");
             _enginerHttpClient = httpClientFactory.CreateClient("enginer");
@@ -57,7 +57,7 @@ namespace RaroNotifications
         /// </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
-            string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(User, _authEndpoint, _customerHttpClient);
+            string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(_userCredentials, _authEndpoint, _customerHttpClient);
             var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
             var json = JsonSerializer.Serialize(notification);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");

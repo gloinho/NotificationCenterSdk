@@ -10,7 +10,7 @@ namespace RaroNotifications.Manager
 {
     internal static class AccessTokenManager
     {
-        internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache, User user, string authUrl, HttpClient httpClient)
+        internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache, UserCredentials userCredentials, string authUrl, HttpClient httpClient)
         {
             var token = memoryCache.Get<string>("TOKEN");
             if (token != null)
@@ -18,18 +18,18 @@ namespace RaroNotifications.Manager
                 return token;
             }
 
-            var tokenModel = await FetchAccessToken(user, authUrl, httpClient);
+            var tokenModel = await FetchAccessToken(userCredentials, authUrl, httpClient);
 
             var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
             memoryCache.Set("TOKEN", tokenModel.Value, options);
             return tokenModel.Value;
         }
 
-        private static async Task<AccessTokenModel> FetchAccessToken(User user, string authUrl, HttpClient httpClient)
+        private static async Task<AccessTokenModel> FetchAccessToken(UserCredentials userCredentials, string authUrl, HttpClient httpClient)
         {
             string accessToken = string.Empty;
             var request = new HttpRequestMessage(HttpMethod.Post, authUrl);
-            var credentials = JsonSerializer.Serialize(user);
+            var credentials = JsonSerializer.Serialize(userCredentials);
             request.Content = new StringContent(credentials, Encoding.UTF8, "application/json");
 
             try
