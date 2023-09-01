@@ -5,6 +5,7 @@ using RaroNotifications.Manager;
 using RaroNotifications.Models;
 using RaroNotifications.Models.Request;
 using RaroNotifications.Models.Response;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -62,7 +63,52 @@ namespace RaroNotifications
             var json = JsonSerializer.Serialize(notification);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            return await RequestToEnginer(request);
+        }
 
+        /// <summary>
+        /// Realiza requisição para o envio de uma notificação.
+        /// </summary>
+        /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
+        /// <param name="accessToken">O token JWT para realizar a autenticação no Enginer.</param>
+        /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
+        /// <exception cref="NotificationException">
+        /// Campos de <paramref name="notification"/> inválidos.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        /// Não foi possivel realizar a requisição.
+        /// </exception>   
+        /// <exception cref="CredentialsException">
+        /// Credenciais inválidas.
+        /// </exception>  
+        /// <exception cref="AccessTokenException">
+        /// Access Token inválido ou expirado.
+        /// </exception>
+        public async Task<NotificationResponse> SendNotification(RequestSendNotification notification, string accessToken)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            if (!handler.CanReadToken(accessToken))
+            {
+                throw new AccessTokenException(null, "Access Token inválido.", DateTime.Now);          
+            }
+
+            var token = handler.ReadJwtToken(accessToken);
+
+            if (token.ValidTo <= DateTime.Now)
+            {
+                throw new AccessTokenException(null, "Access Token expirado.", DateTime.Now);
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
+            var json = JsonSerializer.Serialize(notification);
+            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            request.Headers.Add("Authorization", $"Bearer {accessToken}");
+            return await RequestToEnginer(request);
+
+        }
+
+        private async Task<NotificationResponse> RequestToEnginer(HttpRequestMessage request)
+        {
             try
             {
                 var response = await _enginerHttpClient.SendAsync(request);
