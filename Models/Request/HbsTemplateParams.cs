@@ -1,4 +1,4 @@
-﻿namespace RaroNotifications.Models.RequestModels
+﻿namespace RaroNotifications.Models.Request
 {
     /// <summary>
     /// Modelo de parametros opcionais enviados para o Enginer API para envio de notificação./>

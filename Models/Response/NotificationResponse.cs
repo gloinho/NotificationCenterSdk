@@ -1,4 +1,4 @@
-﻿namespace RaroNotifications.Responses
+﻿namespace RaroNotifications.Models.Response
 {
     public class NotificationResponse
     {

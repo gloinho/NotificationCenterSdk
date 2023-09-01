@@ -2,7 +2,7 @@
 using RaroNotifications.Exceptions;
 using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models.RequestModels
+namespace RaroNotifications.Models.Request
 {
     /// <summary>
     /// Modelo de receivers enviados para o Enginer API para envio de notificação. Pelo menos um deverá existir./>.
