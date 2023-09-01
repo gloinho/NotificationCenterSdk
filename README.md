@@ -1,6 +1,6 @@
 # Sobre
 
-RaroNotifications é uma biblioteca em .NET responsável por realizar requisições para as API's do Notifications Center.
+RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
 
 # Como Usar
 

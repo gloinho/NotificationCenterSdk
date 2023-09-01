@@ -9,8 +9,20 @@
     <Title>RaroNotifications</Title>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>1.2.2</Version>
+	<Version>1.0.0-alpha</Version>
+	<Company>Raro Labs</Company>
+	<Authors>Anastácio Gomes</Authors>
+	<Description>RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
+</Description>
+	<PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
