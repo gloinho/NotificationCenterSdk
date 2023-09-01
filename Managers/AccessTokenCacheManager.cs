@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using RaroNotifications.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RaroNotifications.Manager
 {

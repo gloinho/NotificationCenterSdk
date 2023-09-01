@@ -5,10 +5,13 @@ using RaroNotifications.Manager;
 using RaroNotifications.Models;
 using RaroNotifications.Models.Request;
 using RaroNotifications.Models.Response;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace RaroNotifications
 {
@@ -137,7 +140,7 @@ namespace RaroNotifications
             }
             catch (HttpRequestException httpRequestException)
             {
-                throw new NotificationException(httpRequestException.StatusCode,
+                throw new NotificationException(HttpStatusCode.BadRequest,
                     $"Não foi possível enviar a notificação: {httpRequestException.Message}",
                     DateTime.Now,
                     null,

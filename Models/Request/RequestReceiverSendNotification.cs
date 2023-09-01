@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using RaroNotifications.Exceptions;
+using System;
 using System.Text.Json.Serialization;
 
 namespace RaroNotifications.Models.Request

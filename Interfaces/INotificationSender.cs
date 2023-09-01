@@ -1,6 +1,7 @@
 ﻿using RaroNotifications.Exceptions;
 using RaroNotifications.Models.Request;
 using RaroNotifications.Models.Response;
+using System.Threading.Tasks;
 
 namespace RaroNotifications.Interfaces
 {

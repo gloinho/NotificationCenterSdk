@@ -1,9 +1,14 @@
 ﻿using Microsoft.Net.Http.Headers;
 using RaroNotifications.Exceptions;
 using RaroNotifications.Models;
+using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace RaroNotifications.Manager
 {
@@ -23,7 +28,7 @@ namespace RaroNotifications.Manager
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = await response.Content.ReadAsStreamAsync();
+                    var error = await response.Content.ReadAsStringAsync();
                     throw JsonSerializer.Deserialize<CredentialsException>(error);
                 }
 
@@ -38,7 +43,7 @@ namespace RaroNotifications.Manager
                 }
                 else
                 {
-                    var error = await response.Content.ReadAsStreamAsync();
+                    var error = await response.Content.ReadAsStringAsync();
                     throw JsonSerializer.Deserialize<AccessTokenException>(error);
                 }
 
@@ -51,7 +56,7 @@ namespace RaroNotifications.Manager
             }
             catch (HttpRequestException httpException)
             {
-                throw new AccessTokenException(httpException.StatusCode,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
+                throw new AccessTokenException(HttpStatusCode.BadRequest,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
             }
         }
     }

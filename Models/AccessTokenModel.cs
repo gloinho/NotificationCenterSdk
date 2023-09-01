@@ -1,4 +1,6 @@
-﻿namespace RaroNotifications.Models
+﻿using System;
+
+namespace RaroNotifications.Models
 {
     internal class AccessTokenModel
     {
