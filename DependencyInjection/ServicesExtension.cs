@@ -16,7 +16,7 @@ namespace RaroNotifications.DependencyInjection
         /// <code>
         /// {
         ///     "NotificationSender": {
-        ///         "CustomerBaseUrl": "https://customer-api.example.com",
+        ///         "AuthBaseUrl": "https://customer-api.example.com",
         ///         "EnginerBaseUrl": "https://enginer-api.example.com",
         ///         "Username": "seu-username",
         ///         "Password": "sua-senha"
@@ -30,9 +30,9 @@ namespace RaroNotifications.DependencyInjection
         {
             var settings = configuration.GetRequiredSection("NotificationSender");
 
-            services.AddHttpClient("customer", options =>
+            services.AddHttpClient("auth", options =>
             {
-                options.BaseAddress = new Uri(settings["CustomerBaseUrl"]);
+                options.BaseAddress = new Uri(settings["AuthBaseUrl"]);
             });
 
             services.AddHttpClient("enginer", options =>

@@ -8,7 +8,7 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ```json
 {
     "NotificationSender": {
-        "CustomerBaseUrl": "https://customer-api.example.com",
+        "AuthBaseUrl": "https://auth-api.example.com",
         "EnginerBaseUrl": "https://enginer-api.example.com",
         "Username": "seu-username",
         "Password": "sua-senha"

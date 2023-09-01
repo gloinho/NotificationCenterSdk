@@ -19,7 +19,7 @@ namespace RaroNotifications
     {
         private readonly string _authEndpoint = "api/notification/authentication/sign-in";
         private readonly string _sendNotificationEndpoint = "api/notification/send";
-        private readonly HttpClient _customerHttpClient;
+        private readonly HttpClient _authHttpClient;
         private readonly HttpClient _enginerHttpClient;
         private readonly IMemoryCache _memoryCache;
         private readonly UserCredentials _userCredentials;
@@ -35,7 +35,7 @@ namespace RaroNotifications
         {
             _userCredentials = userCredentials;
             _memoryCache = memoryCache;
-            _customerHttpClient = httpClientFactory.CreateClient("customer");
+            _authHttpClient = httpClientFactory.CreateClient("auth");
             _enginerHttpClient = httpClientFactory.CreateClient("enginer");
         }
 
@@ -56,7 +56,7 @@ namespace RaroNotifications
         /// </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
-            string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(_userCredentials, _authEndpoint, _customerHttpClient);
+            string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(_userCredentials, _authEndpoint, _authHttpClient);
 
             var json = JsonSerializer.Serialize(notification);
             var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint)
@@ -116,7 +116,7 @@ namespace RaroNotifications
         /// <see cref="SendNotification(RequestSendNotification, string)"/></returns>
         public async Task<string> Authenticate()
         {
-            var tokenModel = await UserAuthenticationManager.FetchAccessToken(_userCredentials, _authEndpoint, _customerHttpClient);
+            var tokenModel = await UserAuthenticationManager.FetchAccessToken(_userCredentials, _authEndpoint, _authHttpClient);
             return tokenModel.Value;
         }
 
