@@ -15,6 +15,7 @@
 	<Description>RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
 </Description>
 	<PackageIcon>logo.png</PackageIcon>
+	<RepositoryUrl>https://github.com/gloinho/RaroNotifications</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
