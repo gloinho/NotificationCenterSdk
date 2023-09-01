@@ -40,16 +40,14 @@ namespace RaroNotifications
         }
 
         /// <summary>
-        /// Realiza requisição para o envio de uma notificação.
+        /// Realiza requisição para o envio de uma notificação. A autenticação do usuário é realizada de maneira automática e 
+        /// o Access Token (JWT) é salvo no Memory Cache da aplicação com a key="TOKEN" com validade igual ao key="exp" do JWT.
         /// </summary>
         /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
         /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
         /// <exception cref="NotificationException">
         /// Campos de <paramref name="notification"/> inválidos.
         /// </exception>
-        /// <exception cref="HttpRequestException">
-        /// Não foi possivel realizar a requisição.
-        /// </exception>   
         /// <exception cref="CredentialsException">
         /// Credenciais inválidas.
         /// </exception>  
@@ -59,10 +57,14 @@ namespace RaroNotifications
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
             string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(_userCredentials, _authEndpoint, _customerHttpClient);
-            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
+
             var json = JsonSerializer.Serialize(notification);
-            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
+
             return await RequestToEnginer(request);
         }
 
@@ -73,16 +75,13 @@ namespace RaroNotifications
         /// <param name="accessToken">O token JWT para realizar a autenticação no Enginer.</param>
         /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
         /// <exception cref="NotificationException">
-        /// Campos de <paramref name="notification"/> inválidos.
+        /// Campos de <paramref name="notification"/> inválidos ou erro de servidor.
         /// </exception>
-        /// <exception cref="HttpRequestException">
-        /// Não foi possivel realizar a requisição.
-        /// </exception>   
         /// <exception cref="CredentialsException">
         /// Credenciais inválidas.
         /// </exception>  
         /// <exception cref="AccessTokenException">
-        /// Access Token inválido ou expirado.
+        /// Access Token inválido, expirado ou não resgatado.
         /// </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification, string accessToken)
         {
@@ -99,12 +98,26 @@ namespace RaroNotifications
                 throw new AccessTokenException(null, "Access Token expirado.", DateTime.Now);
             }
 
-            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint);
             var json = JsonSerializer.Serialize(notification);
-            request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, _sendNotificationEndpoint)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
+
             return await RequestToEnginer(request);
 
+        }
+
+        /// <summary>
+        /// Realiza a autenticação do usuário.
+        /// </summary>
+        /// <returns>O AccessToken(JWT) necessário para realizar o envio de notificação para o 
+        /// <see cref="SendNotification(RequestSendNotification, string)"/></returns>
+        public async Task<string> Authenticate()
+        {
+            var tokenModel = await UserAuthenticationManager.FetchAccessToken(_userCredentials, _authEndpoint, _customerHttpClient);
+            return tokenModel.Value;
         }
 
         private async Task<NotificationResponse> RequestToEnginer(HttpRequestMessage request)
@@ -124,7 +137,11 @@ namespace RaroNotifications
             }
             catch (HttpRequestException httpRequestException)
             {
-                throw httpRequestException;
+                throw new NotificationException(httpRequestException.StatusCode,
+                    $"Não foi possível enviar a notificação: {httpRequestException.Message}",
+                    DateTime.Now,
+                    null,
+                    _sendNotificationEndpoint);
             }
         }
     }

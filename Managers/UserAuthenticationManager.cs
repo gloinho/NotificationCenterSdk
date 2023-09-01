@@ -1,31 +1,16 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Net.Http.Headers;
+﻿using Microsoft.Net.Http.Headers;
 using RaroNotifications.Exceptions;
 using RaroNotifications.Models;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using System.Text.Json;
+using System.Text;
 
 namespace RaroNotifications.Manager
 {
-    internal static class AccessTokenManager
+    internal class UserAuthenticationManager
     {
-        internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache, UserCredentials userCredentials, string authUrl, HttpClient httpClient)
-        {
-            var token = memoryCache.Get<string>("TOKEN");
-            if (token != null)
-            {
-                return token;
-            }
-
-            var tokenModel = await FetchAccessToken(userCredentials, authUrl, httpClient);
-
-            var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
-            memoryCache.Set("TOKEN", tokenModel.Value, options);
-            return tokenModel.Value;
-        }
-
-        private static async Task<AccessTokenModel> FetchAccessToken(UserCredentials userCredentials, string authUrl, HttpClient httpClient)
+        internal static async Task<AccessTokenModel> FetchAccessToken(UserCredentials userCredentials, 
+            string authUrl, HttpClient httpClient)
         {
             string accessToken = string.Empty;
             var request = new HttpRequestMessage(HttpMethod.Post, authUrl);
@@ -66,7 +51,7 @@ namespace RaroNotifications.Manager
             }
             catch (HttpRequestException httpException)
             {
-                throw httpException;
+                throw new AccessTokenException(httpException.StatusCode,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
             }
         }
     }
