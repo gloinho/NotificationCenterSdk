@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using RaroNotifications.Exceptions;
+using RaroNotifications.Interfaces;
 using RaroNotifications.Manager;
 using RaroNotifications.Models;
 using RaroNotifications.Models.RequestModels;
@@ -13,7 +14,7 @@ namespace RaroNotifications
     /// <summary>
     /// Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
     /// </summary>
-    public class NotificationSender
+    public class NotificationSender : INotificationSender
     {
         private readonly string _authEndpoint = "api/notification/authentication/sign-in";
         private readonly string _sendNotificationEndpoint = "api/notification/send";
@@ -25,8 +26,8 @@ namespace RaroNotifications
         /// <summary>
         /// Inicializa uma nova instancia de <see cref="NotificationSender"/>.
         /// </summary>
-        /// <param name="memoryCache">A <see cref="IMemoryCache"/> instancia injetada do MemoryCache.</param>
-        /// <param name="httpClientFactory">A <see cref="IHttpClientFactory"/> instancia injetada do HttpClientFactory.</param>
+        /// <param name="memoryCache">A instancia de <see cref="IMemoryCache"/> injetada do MemoryCache.</param>
+        /// <param name="httpClientFactory">A instancia <see cref="IHttpClientFactory"/> injetada do HttpClientFactory.</param>
         /// <param name="username">O usuário a ser autenticado.</param>
         /// <param name="password">A senha do usuário a ser autenticado</param>
         public NotificationSender(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, string username, string password)

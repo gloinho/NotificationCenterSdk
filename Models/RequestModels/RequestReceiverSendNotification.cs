@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace RaroNotifications.Models.RequestModels
 {
     /// <summary>
-    /// Modelo de receivers enviados para o Enginer API para envio de notificação./>.
+    /// Modelo de receivers enviados para o Enginer API para envio de notificação. Pelo menos um deverá existir./>.
     /// </summary>
     public class RequestReceiverSendNotification
     {
