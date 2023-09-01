@@ -42,6 +42,26 @@ builder.Services.AddNotificationSender(builder.Configuration);
         }
     }
 ```
+---
+```csharp
+    public class ExampleController : ControllerBase
+    {
+        private readonly INotificationSender _notificationSender;
+        public ExampleController(INotificationSender notificationSender)
+        {
+            _notificationSender = notificationSender;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<NotificationResponse>> SendNotification(RequestSendNotification model)
+        {
+            var token = await _notificationSender.Authenticate();
+            // Realizar tratativas para armazenamento de token.
+            var response = await _notificationSender.SendNotification(model,token);
+            return response;
+        }
+    }
+```
 
 # Tipos Principais
 Os principais tipos fornecidos por essa biblioteca são:
