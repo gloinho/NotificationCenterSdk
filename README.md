@@ -18,20 +18,20 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ## 2) Injeção de Dependencias
 
 ```csharp
-var settings = configuration.GetRequiredSection("NotificationSender");
+builder.Services.AddMemoryCache();
+var settings = builder.Configuration.GetRequiredSection("NotificationSender");
 
-services.AddHttpClient("auth", options =>
+builder.Services.AddHttpClient("auth", options =>
 {
     options.BaseAddress = new Uri(settings["AuthBaseUrl"]);
 });
 
-services.AddHttpClient("enginer", options =>
+builder.Services.AddHttpClient("enginer", options =>
 {
     options.BaseAddress = new Uri(settings["EnginerBaseUrl"]);
 });
 
-
-services.AddSingleton(provider =>
+builder.Services.AddSingleton(provider =>
 {
     return new UserCredentials
     {
@@ -40,8 +40,7 @@ services.AddSingleton(provider =>
     };
 });
 
-
-services.AddSingleton<INotificationSender, NotificationSender>();
+builder.Services.AddSingleton<INotificationSender, NotificationSender>();
 ```
 
 ---
