@@ -11,7 +11,7 @@ namespace RaroNotifications.Models.Request
         /// Inicializa uma nova instancia de <see cref="HbsTemplateParams"/>
         /// </summary>
         /// <param name="parameters">Dicionário contendo os parametros opcionais</param>
-        public HbsTemplateParams(Dictionary<string, string> parameters)
+        public HbsTemplateParams(Dictionary<string, string>? parameters)
         {
             Parameters = parameters;
         }
@@ -19,6 +19,6 @@ namespace RaroNotifications.Models.Request
         /// <summary>
         /// Parametros opcionais./>
         /// </summary>
-        public Dictionary<string, string> Parameters { get; private set; }
+        public Dictionary<string, string>? Parameters { get; private set; }
     }
 }
