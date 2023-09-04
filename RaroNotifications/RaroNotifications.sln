@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaroNotifications", "RaroNo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaroNotifications.Tests", "..\RaroNotifications.Tests\RaroNotifications.Tests.csproj", "{259DEF1C-B7EA-495E-8654-EEA7A913BA65}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication1", "..\WebApplication1\WebApplication1.csproj", "{0A41A8FF-AECA-4C2C-BEF5-73E66F3FF18A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A41A8FF-AECA-4C2C-BEF5-73E66F3FF18A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A41A8FF-AECA-4C2C-BEF5-73E66F3FF18A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A41A8FF-AECA-4C2C-BEF5-73E66F3FF18A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A41A8FF-AECA-4C2C-BEF5-73E66F3FF18A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

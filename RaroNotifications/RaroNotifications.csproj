@@ -16,7 +16,7 @@
 	<Description>RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
 </Description>
 	<PackageIcon>logo.png</PackageIcon>
-	<RepositoryUrl>https://github.com/gloinho/RaroNotifications</RepositoryUrl>
+	<RepositoryUrl></RepositoryUrl>
 	<OutputType>Library</OutputType>
   </PropertyGroup>
 
@@ -44,6 +44,17 @@
 	    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 		    <_Parameter1>RaroNotifications.Tests</_Parameter1>
 	    </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\logo.png">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+      <None Include="..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>
