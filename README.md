@@ -18,10 +18,40 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ## 2) Injeção de Dependencias
 
 ```csharp
-// Program.cs
+var settings = configuration.GetRequiredSection("NotificationSender");
 
+services.AddHttpClient("auth", options =>
+{
+    options.BaseAddress = new Uri(settings["AuthBaseUrl"]);
+});
+
+services.AddHttpClient("enginer", options =>
+{
+    options.BaseAddress = new Uri(settings["EnginerBaseUrl"]);
+});
+
+
+services.AddSingleton(provider =>
+{
+    return new UserCredentials
+    {
+        Username = settings["Username"],
+        Password = settings["Password"]
+    };
+});
+
+
+services.AddSingleton<INotificationSender, NotificationSender>();
+```
+
+---
+
+```csharp
+// Program.cs 
 using RaroNotifications.DependencyInjection;
+
 builder.Services.AddNotificationSender(builder.Configuration);
+builder.Services.AddMemoryCache();
 ```
 
 ## 2) Exemplo de utilização
