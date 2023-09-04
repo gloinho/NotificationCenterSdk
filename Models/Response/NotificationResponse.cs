@@ -1,7 +1,17 @@
-﻿namespace RaroNotifications.Models.Response
+﻿using System;
+using System.Text.Json.Serialization;
+
+namespace RaroNotifications.Models.Response
 {
     public class NotificationResponse
     {
-        public string? Id { get; set; }
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+        [JsonPropertyName("dateTime")]
+        public DateTime DateTime { get; set; }
+        [JsonPropertyName("success")]
+        public bool Success { get; set; }
+        [JsonPropertyName("error")]
+        public ErrorResponse? Error { get; set; }
     }
 }
