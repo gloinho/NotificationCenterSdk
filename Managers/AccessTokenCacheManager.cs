@@ -10,16 +10,16 @@ namespace RaroNotifications.Manager
         internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache, 
             UserCredentials userCredentials, string authUrl, HttpClient httpClient)
         {
-            var token = memoryCache.Get<string>("TOKEN");
-            if (token != null)
+            bool tokenExists = memoryCache.TryGetValue("TOKEN", out string token);
+            if (tokenExists)
             {
                 return token;
             }
-
             var tokenModel = await UserAuthenticationManager.FetchAccessToken(userCredentials, authUrl, httpClient);
 
             var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
             memoryCache.Set("TOKEN", tokenModel.Value, options);
+
             return tokenModel.Value;
         }
     }
