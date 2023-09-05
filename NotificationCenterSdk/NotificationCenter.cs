@@ -133,9 +133,10 @@ namespace NotificationCenterSdk
 
                 return response.StatusCode switch
                 {
-                    HttpStatusCode.Created => JsonSerializer.Deserialize<NotificationResponse>(content),
+                    HttpStatusCode.OK => JsonSerializer.Deserialize<NotificationResponse>(content),
                     HttpStatusCode.BadRequest => throw JsonSerializer.Deserialize<NotificationException>(content),
-                    _ => null,
+                    HttpStatusCode.InternalServerError => throw JsonSerializer.Deserialize<NotificationException>(content),
+                    _ => throw new NotificationException(null, "Não foi possível identificar a resposta da API.", DateTime.Now)
                 };
             }
             catch (HttpRequestException httpRequestException)
@@ -143,7 +144,7 @@ namespace NotificationCenterSdk
                 throw new NotificationException(HttpStatusCode.InternalServerError,
                     $"Não foi possível enviar a notificação: {httpRequestException.Message}",
                     DateTime.Now,
-                    null,
+                    httpRequestException.InnerException?.Message,
                     _sendNotificationEndpoint);
             }
         }
