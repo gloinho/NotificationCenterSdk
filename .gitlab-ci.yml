@@ -9,7 +9,7 @@ stages:
 build-job:       
   stage: build
   script:
-    - dotnet build ./RaroNotifications/-c Release
+    - dotnet build ./RaroNotifications/RaroNotifications.sln -c Release
 
 unit-test-job:   
   stage: test    
