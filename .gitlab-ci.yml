@@ -1,0 +1,32 @@
+image: mcr.microsoft.com/dotnet/sdk:6.0
+
+stages:
+  - build
+  - test
+  - publish
+
+build-job:
+  stage: build
+  script:
+    - dotnet build ./NotificationCenterSdk/NotificationCenter.sln -c Release
+  artifacts:
+    untracked: false
+    when: on_success
+    expire_in: 30 days
+    paths:
+      - ./NotificationCenterSdk/obj/
+      - ./NotificationCenterSdk/bin/
+
+unit-test-job:
+  stage: test
+  script:
+    - dotnet test ./NotificationCenterSdk/NotificationCenter.sln
+
+publish-job:
+  stage: publish
+  script:
+    - dotnet nuget push ./NotificationCenterSdk/bin/Release/*.nupkg --api-key 123 --source https://api.nuget.org/v3/index.json
+  dependencies:
+    - build-job
+  only:
+    - main
