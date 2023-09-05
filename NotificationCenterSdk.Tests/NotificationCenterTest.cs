@@ -35,7 +35,7 @@ namespace NotificationCenterSdk.Tests
         }
 
         [Fact]
-        public async void ModelIncorretoDeveLancarErro()
+        public async void ModelIncorretoDeveLancarExcecao()
         {
             var modelInvalido = _fixture.Create<RequestSendNotification>();
             var exception = _fixture.Build<NotificationException>().With(e => e.StatusCode, HttpStatusCode.BadRequest).Create();
@@ -67,12 +67,12 @@ namespace NotificationCenterSdk.Tests
         public async void NotificacaoEnviadaRetornaUmaResponse()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var response = _fixture.Create<NotificationResponse>();
+            var response = _fixture.Build<NotificationResponse>().With(t => t.Success, true).Create();
 
             var jsonResponse = JsonSerializer.Serialize(response);
             var mockedResponse = new HttpResponseMessage()
             {
-                StatusCode = HttpStatusCode.Created,
+                StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(jsonResponse)
             };
 
@@ -93,19 +93,19 @@ namespace NotificationCenterSdk.Tests
             var result = await sender.SendNotification(model);
 
             Assert.NotNull(result);
-            Assert.Equal(response.Id, result.Id);
+            Assert.Equal(response.Success, result.Success);
         }
 
         [Fact]
         public async void EnviarNotificacaoETokenValidoRetornaResponse()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var response = _fixture.Create<NotificationResponse>();
+            var response = _fixture.Build<NotificationResponse>().With(t => t.Success, true).Create();
 
             var jsonResponse = JsonSerializer.Serialize(response);
             var mockedResponse = new HttpResponseMessage()
             {
-                StatusCode = HttpStatusCode.Created,
+                StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(jsonResponse)
             };
      
@@ -126,11 +126,11 @@ namespace NotificationCenterSdk.Tests
             var result = await sender.SendNotification(model, _token.ToString());
 
             Assert.NotNull(result);
-            Assert.Equal(response.Id, result.Id);
+            Assert.Equal(response.Success, result.Success);
         }
 
         [Fact]
-        public async void EnviarUmTokenInvalidoRetornaErro()
+        public async void EnviarUmTokenInvalidoLancaExcecao()
         {
             var model = _fixture.Create<RequestSendNotification>();
             var exception = _fixture.Build<AccessTokenException>().With
@@ -149,7 +149,7 @@ namespace NotificationCenterSdk.Tests
         }
 
         [Fact]
-        public async void EnviarUmTokenExpiradoRetornaErro()
+        public async void EnviarUmTokenExpiradoLancaExcecao()
         {
             var model = _fixture.Create<RequestSendNotification>();
             var exception = _fixture.Build<AccessTokenException>().With
@@ -171,7 +171,7 @@ namespace NotificationCenterSdk.Tests
         }
 
         [Fact]
-        public async void ApiIndisponivelRetornaUmErro()
+        public async void ApiIndisponivelLancaExcecao()
         {
             var model = _fixture.Create<RequestSendNotification>();
             var exception = _fixture.Build<NotificationException>().With
@@ -192,6 +192,63 @@ namespace NotificationCenterSdk.Tests
             var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
             var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model, _token.ToString()));
             Assert.Equal(exception.StatusCode, result.StatusCode);
+        }
+
+        [Fact]
+        public async void ErroInternoDaApiLancaExcecao()
+        {
+            var model = _fixture.Create<RequestSendNotification>();
+            var response = _fixture.Build<NotificationException>().With(t => t.StatusCode, HttpStatusCode.InternalServerError).Create();
+            var jsonResponse = JsonSerializer.Serialize(response);
+
+            var mockedResponse = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                Content = new StringContent(jsonResponse)
+            };
+
+            _mockMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(mockedResponse);
+
+            var client = new HttpClient(_mockMessageHandler.Object)
+            {
+                BaseAddress = new Uri(_baseAddress)
+            };
+
+            _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
+            _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
+
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
+            var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model));
+            Assert.Equal(response.StatusCode, result.StatusCode);
+        }
+
+        [Fact]
+        public async void ApiRetornarStatusCodeDesconhecidoLancaExcecao()
+        {
+            var model = _fixture.Create<RequestSendNotification>();
+            var mockedResponse = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.NoContent,
+                Content = new StringContent("")
+            };
+
+            _mockMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(mockedResponse);
+
+            var client = new HttpClient(_mockMessageHandler.Object)
+            {
+                BaseAddress = new Uri(_baseAddress)
+            };
+
+            _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
+            _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
+
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
+            var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model));
+            Assert.Null(result.StatusCode);
         }
 
         [Fact]
