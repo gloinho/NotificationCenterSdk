@@ -96,7 +96,7 @@ namespace RaroNotifications
 
             var token = handler.ReadJwtToken(accessToken);
 
-            if (token.ValidTo <= DateTime.Now)
+            if (token.ValidTo.ToLocalTime() <= DateTime.Now)
             {
                 throw new AccessTokenException(null, "Access Token expirado.", DateTime.Now);
             }
@@ -140,7 +140,7 @@ namespace RaroNotifications
             }
             catch (HttpRequestException httpRequestException)
             {
-                throw new NotificationException(HttpStatusCode.BadRequest,
+                throw new NotificationException(HttpStatusCode.InternalServerError,
                     $"Não foi possível enviar a notificação: {httpRequestException.Message}",
                     DateTime.Now,
                     null,

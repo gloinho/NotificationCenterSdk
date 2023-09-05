@@ -56,7 +56,7 @@ namespace RaroNotifications.Manager
             }
             catch (HttpRequestException httpException)
             {
-                throw new AccessTokenException(HttpStatusCode.BadRequest,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
+                throw new AccessTokenException(HttpStatusCode.InternalServerError,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
             }
         }
     }

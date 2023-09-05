@@ -17,6 +17,7 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ```
 ## 2) Injeção de Dependencias
 
+#### Injetando as dependencias manualmente.
 ```csharp
 builder.Services.AddMemoryCache();
 var settings = builder.Configuration.GetRequiredSection("NotificationSender");
@@ -44,7 +45,7 @@ builder.Services.AddSingleton<INotificationSender, NotificationSender>();
 ```
 
 ---
-
+#### Utilizando a extensão `RaroNotifications.DependencyInjection`
 ```csharp
 // Program.cs 
 using RaroNotifications.DependencyInjection;
@@ -54,6 +55,7 @@ builder.Services.AddMemoryCache();
 ```
 
 ## 2) Exemplo de utilização
+#### Realizando a autenticação automática e salvando o access token no Memory Cache.
 ```csharp
     public class ExampleController : ControllerBase
     {
@@ -72,6 +74,7 @@ builder.Services.AddMemoryCache();
     }
 ```
 ---
+#### Realizando a autenticação manual e devolvendo o access token para gerenciamento manual.
 ```csharp
     public class ExampleController : ControllerBase
     {
@@ -92,7 +95,7 @@ builder.Services.AddMemoryCache();
     }
 ```
 
-# Tipos Principais
+# Principais Tipos
 Os principais tipos fornecidos por essa biblioteca são:
 - `NotificationSender` : Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
 - `RequestSendNotification` : Modelo de requisição enviados para o Enginer API para envio de notificação.
