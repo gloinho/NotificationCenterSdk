@@ -35,20 +35,23 @@ namespace RaroNotifications.Tests
             var mockedResponse = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent("")
             };
 
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(mockedResponse);
 
-            var client = new HttpClient(_mockMessageHandler.Object);
+            var client = new HttpClient(_mockMessageHandler.Object)
+            {
+                BaseAddress = new Uri("http://localhost:3001/")
+            };
 
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
             var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var result = Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model));
-
         }
 
         [Fact]
@@ -196,6 +199,35 @@ namespace RaroNotifications.Tests
             var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var token = TokenGenerator.GenerateToken(_user);
             var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model, token));
+        }
+
+        [Fact]
+        public async void AutenticacaoRetornaUmToken()
+        {
+            var user = _fixture.Create<UserCredentials>();
+            var token = TokenGenerator.GenerateToken(user);
+
+            var mockedResponse = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("")
+            };
+            mockedResponse.Headers.Add("Set-Cookie", $"access_token={token}");
+
+            _mockMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(mockedResponse);
+
+            var client = new HttpClient(_mockMessageHandler.Object)
+            {
+                BaseAddress = new Uri(_baseAddress)
+            };
+            _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
+            _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
+            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var response = await sender.Authenticate();
+            Assert.NotNull(response);
+            Assert.Equal(token, response);
         }
     }
 }

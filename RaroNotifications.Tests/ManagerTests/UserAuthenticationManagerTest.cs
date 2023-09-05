@@ -8,7 +8,7 @@ using RaroNotifications.Tests.Configuration;
 using RaroNotifications.Tests.Utils;
 using System.Net;
 
-namespace RaroNotifications.Tests
+namespace RaroNotifications.Tests.ManagerTests
 {
     public class UserAuthenticationManagerTest
     {
@@ -91,14 +91,14 @@ namespace RaroNotifications.Tests
             var user = _fixture.Create<UserCredentials>();
             _mockMessageHandler.Protected()
             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ThrowsAsync(new HttpRequestException(null,null,HttpStatusCode.BadRequest));
+            .ThrowsAsync(new HttpRequestException(null, null, HttpStatusCode.BadRequest));
 
             var client = new HttpClient(_mockMessageHandler.Object);
 
             var result = Assert.ThrowsAsync<AccessTokenException>(() => UserAuthenticationManager.FetchAccessToken(user, _url, client));
             var code = result.Result.StatusCode;
 
-            Assert.Equal(HttpStatusCode.InternalServerError, code);  
+            Assert.Equal(HttpStatusCode.InternalServerError, code);
         }
     }
 }
