@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RaroNotifications.Models.Response
+namespace NotificationCenterSdk.Models.Response
 {
     public class ErrorResponse
     {

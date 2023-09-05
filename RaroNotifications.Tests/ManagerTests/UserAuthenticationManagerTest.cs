@@ -1,14 +1,14 @@
 ﻿using AutoFixture;
 using Moq;
 using Moq.Protected;
-using RaroNotifications.Exceptions;
-using RaroNotifications.Manager;
-using RaroNotifications.Models;
-using RaroNotifications.Tests.Configuration;
-using RaroNotifications.Tests.Utils;
+using NotificationCenterSdk.Exceptions;
+using NotificationCenterSdk.Managers;
+using NotificationCenterSdk.Models;
+using NotificationCenterSdk.Tests.Configuration;
+using NotificationCenterSdk.Tests.Utils;
 using System.Net;
 
-namespace RaroNotifications.Tests.ManagerTests
+namespace NotificationCenterSdk.Tests.ManagerTests
 {
     public class UserAuthenticationManagerTest
     {

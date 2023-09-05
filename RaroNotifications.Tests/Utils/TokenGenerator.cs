@@ -1,10 +1,10 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
-using RaroNotifications.Models;
+using NotificationCenterSdk.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace RaroNotifications.Tests.Utils
+namespace NotificationCenterSdk.Tests.Utils
 {
     public static class TokenGenerator
     {

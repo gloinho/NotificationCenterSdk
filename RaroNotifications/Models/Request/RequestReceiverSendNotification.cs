@@ -1,9 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using RaroNotifications.Exceptions;
+using NotificationCenterSdk.Exceptions;
 using System;
 using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models.Request
+namespace NotificationCenterSdk.Models.Request
 {
     /// <summary>
     /// Modelo de receivers enviados para o Enginer API para envio de notificação. Pelo menos um deverá existir./>.

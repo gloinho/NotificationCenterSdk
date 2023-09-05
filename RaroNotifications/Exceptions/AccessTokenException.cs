@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace RaroNotifications.Exceptions
+namespace NotificationCenterSdk.Exceptions
 {
     public class AccessTokenException : NotificationException
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Models.Response
+namespace NotificationCenterSdk.Models.Response
 {
     public class NotificationResponse
     {

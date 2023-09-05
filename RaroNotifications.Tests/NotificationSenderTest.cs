@@ -1,18 +1,18 @@
 ﻿using AutoFixture;
 using Moq;
 using Moq.Protected;
-using RaroNotifications.Exceptions;
-using RaroNotifications.Models;
-using RaroNotifications.Models.Request;
-using RaroNotifications.Models.Response;
-using RaroNotifications.Tests.Configuration;
-using RaroNotifications.Tests.Utils;
+using NotificationCenterSdk.Exceptions;
+using NotificationCenterSdk.Models;
+using NotificationCenterSdk.Models.Request;
+using NotificationCenterSdk.Models.Response;
+using NotificationCenterSdk.Tests.Configuration;
+using NotificationCenterSdk.Tests.Utils;
 using System.Net;
 using System.Text.Json;
 
-namespace RaroNotifications.Tests
+namespace NotificationCenterSdk.Tests
 {
-    public class NotificationSenderTest
+    public class NotificationCenterTest
     {
         private Mock<IHttpClientFactory> _httpClientFactory;
         private Mock<HttpMessageHandler> _mockMessageHandler;
@@ -20,11 +20,11 @@ namespace RaroNotifications.Tests
         private readonly UserCredentials _user;
         private readonly Fixture _fixture;
 
-        public NotificationSenderTest()
+        public NotificationCenterTest()
         {
             _httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
             _mockMessageHandler = new Mock<HttpMessageHandler>();
-            _fixture = FixtureConfig.Get(); 
+            _fixture = FixtureConfig.Get();
             _user = _fixture.Create<UserCredentials>();
         }
 
@@ -50,7 +50,7 @@ namespace RaroNotifications.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var result = Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model));
         }
 
@@ -74,13 +74,13 @@ namespace RaroNotifications.Tests
 
             var client = new HttpClient(_mockMessageHandler.Object)
             {
-                BaseAddress=new Uri("http://localhost:3001/")
+                BaseAddress = new Uri("http://localhost:3001/")
             };
 
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
 
             var result = await sender.SendNotification(model);
 
@@ -114,12 +114,12 @@ namespace RaroNotifications.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
 
             var result = await sender.SendNotification(model, token);
 
             Assert.NotNull(result);
-            Assert.Equal(response.Id,result.Id);
+            Assert.Equal(response.Id, result.Id);
         }
 
         [Fact]
@@ -145,8 +145,8 @@ namespace RaroNotifications.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
-            var result = Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model,"tokenInvalido"));
+            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var result = Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, "tokenInvalido"));
         }
 
         [Fact]
@@ -172,7 +172,7 @@ namespace RaroNotifications.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var tokenInvalido = TokenGenerator.GenerateExpiredToken(_user);
             var result = Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, tokenInvalido));
 
@@ -187,7 +187,7 @@ namespace RaroNotifications.Tests
 
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ThrowsAsync(new HttpRequestException(null,null,statusCode:HttpStatusCode.InternalServerError));
+                .ThrowsAsync(new HttpRequestException(null, null, statusCode: HttpStatusCode.InternalServerError));
 
             var client = new HttpClient(_mockMessageHandler.Object)
             {
@@ -196,7 +196,7 @@ namespace RaroNotifications.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var token = TokenGenerator.GenerateToken(_user);
             var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model, token));
         }
@@ -224,7 +224,7 @@ namespace RaroNotifications.Tests
             };
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
-            var sender = new NotificationSender(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
             var response = await sender.Authenticate();
             Assert.NotNull(response);
             Assert.Equal(token, response);

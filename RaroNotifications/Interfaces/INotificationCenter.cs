@@ -1,14 +1,14 @@
-﻿using RaroNotifications.Exceptions;
-using RaroNotifications.Models.Request;
-using RaroNotifications.Models.Response;
+﻿using NotificationCenterSdk.Exceptions;
+using NotificationCenterSdk.Models.Request;
+using NotificationCenterSdk.Models.Response;
 using System.Threading.Tasks;
 
-namespace RaroNotifications.Interfaces
+namespace NotificationCenterSdk.Interfaces
 {
     /// <summary>
-    /// Interface do <see cref="NotificationSender"/>.
+    /// Interface do <see cref="NotificationCenter"/>.
     /// </summary>
-    public interface INotificationSender
+    public interface INotificationCenter
     {
         /// <summary>
         /// Realiza requisição para o envio de uma notificação. A autenticação do usuário é realizada de maneira automática e 

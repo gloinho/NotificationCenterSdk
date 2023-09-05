@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using RaroNotifications.Exceptions;
-using RaroNotifications.Interfaces;
-using RaroNotifications.Manager;
-using RaroNotifications.Models;
-using RaroNotifications.Models.Request;
-using RaroNotifications.Models.Response;
+using NotificationCenterSdk.Exceptions;
+using NotificationCenterSdk.Interfaces;
+using NotificationCenterSdk.Managers;
+using NotificationCenterSdk.Models;
+using NotificationCenterSdk.Models.Request;
+using NotificationCenterSdk.Models.Response;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -13,12 +13,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace RaroNotifications
+namespace NotificationCenterSdk
 {
     /// <summary>
     /// Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
     /// </summary>
-    public class NotificationSender : INotificationSender
+    public class NotificationCenter : INotificationCenter
     {
         private readonly string _authEndpoint = "api/notification/authentication/sign-in";
         private readonly string _sendNotificationEndpoint = "api/notification/send";
@@ -28,13 +28,13 @@ namespace RaroNotifications
         private readonly UserCredentials _userCredentials;
 
         /// <summary>
-        /// Inicializa uma nova instancia de <see cref="NotificationSender"/>.
+        /// Inicializa uma nova instancia de <see cref="NotificationCenter"/>.
         /// </summary>
         /// <param name="memoryCache">A instancia de <see cref="IMemoryCache"/> injetada do MemoryCache.</param>
         /// <param name="httpClientFactory">A instancia <see cref="IHttpClientFactory"/> injetada do HttpClientFactory.</param>
         /// <param name="username">O usuário a ser autenticado.</param>
         /// <param name="password">A senha do usuário a ser autenticado</param>
-        public NotificationSender(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, UserCredentials userCredentials)
+        public NotificationCenter(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, UserCredentials userCredentials)
         {
             _userCredentials = userCredentials;
             _memoryCache = memoryCache;

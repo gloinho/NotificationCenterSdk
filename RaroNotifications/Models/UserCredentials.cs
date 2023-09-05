@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-namespace RaroNotifications.Models
+namespace NotificationCenterSdk.Models
 {
     /// <summary>
     /// Classe responsável por armazenar as credenciais do usuário. Configurada por DI./>

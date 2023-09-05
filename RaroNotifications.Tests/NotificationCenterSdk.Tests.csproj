@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RaroNotifications\RaroNotifications.csproj" />
+    <ProjectReference Include="..\RaroNotifications\NotificationCenterSdk.csproj" />
   </ItemGroup>
 
 </Project>

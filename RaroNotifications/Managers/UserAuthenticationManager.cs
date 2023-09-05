@@ -1,6 +1,6 @@
 ﻿using Microsoft.Net.Http.Headers;
-using RaroNotifications.Exceptions;
-using RaroNotifications.Models;
+using NotificationCenterSdk.Exceptions;
+using NotificationCenterSdk.Models;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -10,11 +10,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace RaroNotifications.Manager
+namespace NotificationCenterSdk.Managers
 {
     internal class UserAuthenticationManager
     {
-        internal static async Task<AccessTokenModel> FetchAccessToken(UserCredentials userCredentials, 
+        internal static async Task<AccessTokenModel> FetchAccessToken(UserCredentials userCredentials,
             string authUrl, HttpClient httpClient)
         {
             string accessToken = string.Empty;
@@ -56,7 +56,7 @@ namespace RaroNotifications.Manager
             }
             catch (HttpRequestException httpException)
             {
-                throw new AccessTokenException(HttpStatusCode.InternalServerError,$"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
+                throw new AccessTokenException(HttpStatusCode.InternalServerError, $"Falha ao buscar access token: {httpException.Message}", DateTime.Now);
             }
         }
     }

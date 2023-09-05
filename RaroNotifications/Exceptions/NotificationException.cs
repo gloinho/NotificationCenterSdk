@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text.Json.Serialization;
 
-namespace RaroNotifications.Exceptions
+namespace NotificationCenterSdk.Exceptions
 {
     [Serializable]
     public class NotificationException : Exception

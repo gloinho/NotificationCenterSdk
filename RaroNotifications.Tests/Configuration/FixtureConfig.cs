@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 
-namespace RaroNotifications.Tests.Configuration
+namespace NotificationCenterSdk.Tests.Configuration
 {
     public static class FixtureConfig
     {

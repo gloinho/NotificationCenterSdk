@@ -1,22 +1,22 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RaroNotifications.Interfaces;
-using RaroNotifications.Models;
+using NotificationCenterSdk.Interfaces;
+using NotificationCenterSdk.Models;
 using System;
 
-namespace RaroNotifications.DependencyInjection
+namespace NotificationCenterSdk.DependencyInjection
 {
     /// <summary>
-    /// Classe que realiza o DI e configurações necessárias. <see cref="NotificationSender"/>
+    /// Classe que realiza o DI e configurações necessárias. <see cref="NotificationCenter"/>
     /// </summary>
     public static class ServicesExtension
     {
         /// <summary>
-        /// Extension Method para realizar as configurações necessárias da classe <see cref="NotificationSender"/>.
+        /// Extension Method para realizar as configurações necessárias da classe <see cref="NotificationCenter"/>.
         /// É necessário configurar o appsettings.json corretamente de acordo com o exemplo abaixo:
         /// <code>
         /// {
-        ///     "NotificationSender": {
+        ///     "NotificationCenter": {
         ///         "AuthBaseUrl": "https://customer-api.example.com",
         ///         "EnginerBaseUrl": "https://enginer-api.example.com",
         ///         "Username": "seu-username",
@@ -27,9 +27,9 @@ namespace RaroNotifications.DependencyInjection
         /// </summary>
         /// <param name="configuration">IConfiguration da aplicação.</param>
         /// <param name="services">ISeviceCollection da aplicação.</param>
-        public static void AddNotificationSender(this IServiceCollection services, IConfiguration configuration)
+        public static void AddNotificationCenter(this IServiceCollection services, IConfiguration configuration)
         {
-            var settings = configuration.GetRequiredSection("NotificationSender");
+            var settings = configuration.GetRequiredSection("NotificationCenter");
 
             services.AddHttpClient("auth", options =>
             {
@@ -52,7 +52,7 @@ namespace RaroNotifications.DependencyInjection
             });
 
 
-            services.AddSingleton<INotificationSender, NotificationSender>();
+            services.AddSingleton<INotificationCenter, NotificationCenter>();
         }
     }
 }

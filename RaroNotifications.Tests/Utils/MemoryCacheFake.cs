@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using RaroNotifications.Models;
+using NotificationCenterSdk.Models;
 
-namespace RaroNotifications.Tests.Utils
+namespace NotificationCenterSdk.Tests.Utils
 {
     public sealed class MemoryCacheFake : IMemoryCache
     {
@@ -13,7 +13,7 @@ namespace RaroNotifications.Tests.Utils
         }
         public MemoryCacheFake()
         {
-            
+
         }
         public ICacheEntry CreateEntry(object key)
         {
