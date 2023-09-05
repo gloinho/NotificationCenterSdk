@@ -19,7 +19,7 @@ unit-test-job:
 pack-job:      
   stage: pack  
   script:
-    - dotnet pack ./RaroNotifications/RaroNotifications.dll -c Release
+    - dotnet pack ./RaroNotifications/bin/Release/netstandard2.0/RaroNotifications.dll -c Release
 
 publish-job:
   stage: publish
