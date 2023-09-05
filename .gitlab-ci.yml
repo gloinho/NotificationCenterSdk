@@ -15,8 +15,8 @@ build-job:
     when: on_success
     expire_in: 30 days
     paths:
-      - bin/
-      - obj/
+      - ./RaroNotifications/bin/
+      - ./RaroNotifications/obj/
 
 unit-test-job:   
   stage: test    
