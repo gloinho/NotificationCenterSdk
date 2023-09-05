@@ -7,6 +7,7 @@ using NotificationCenterSdk.Models;
 using NotificationCenterSdk.Tests.Configuration;
 using NotificationCenterSdk.Tests.Utils;
 using System.Net;
+using System.Text.Json;
 
 namespace NotificationCenterSdk.Tests.ManagerTests
 {
@@ -47,12 +48,15 @@ namespace NotificationCenterSdk.Tests.ManagerTests
         }
 
         [Fact]
-        public void LoginInvalidoDeveLancarErro()
+        public async void LoginInvalidoDeveLancarErro()
         {
             var user = _fixture.Create<UserCredentials>();
+            var exception = _fixture.Build<CredentialsException>().With(e => e.StatusCode, HttpStatusCode.BadRequest).Create();
+            var jsonResponse = JsonSerializer.Serialize(exception);
             var mockedResponse = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent(jsonResponse)
             };
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -60,8 +64,8 @@ namespace NotificationCenterSdk.Tests.ManagerTests
 
             var client = new HttpClient(_mockMessageHandler.Object);
 
-            var result = Assert.ThrowsAsync<CredentialsException>(() => UserAuthenticationManager.FetchAccessToken(user, _url, client));
-
+            var result = await Assert.ThrowsAsync<CredentialsException>(() => UserAuthenticationManager.FetchAccessToken(user, _url, client));
+            Assert.Equal(exception.StatusCode, result.StatusCode);
         }
 
         [Fact]

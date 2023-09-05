@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Moq.Protected;
 using NotificationCenterSdk.Exceptions;
@@ -16,32 +17,39 @@ namespace NotificationCenterSdk.Tests
     {
         private Mock<IHttpClientFactory> _httpClientFactory;
         private Mock<HttpMessageHandler> _mockMessageHandler;
+        private Mock<IMemoryCache> _mockMemoryCache;
         private string _baseAddress = "https://localhost:3001/";
         private readonly UserCredentials _user;
+        private object _token;
         private readonly Fixture _fixture;
 
         public NotificationCenterTest()
         {
             _httpClientFactory = new Mock<IHttpClientFactory>(MockBehavior.Strict);
             _mockMessageHandler = new Mock<HttpMessageHandler>();
+            _mockMemoryCache = new Mock<IMemoryCache>();
             _fixture = FixtureConfig.Get();
             _user = _fixture.Create<UserCredentials>();
+            _token = TokenGenerator.GenerateToken(_user);
+            _mockMemoryCache.Setup(_ => _.TryGetValue("TOKEN", out _token)).Returns(true);
         }
 
         [Fact]
         public async void ModelIncorretoDeveLancarErro()
         {
-            var model = _fixture.Create<RequestSendNotification>();
+            var modelInvalido = _fixture.Create<RequestSendNotification>();
+            var exception = _fixture.Build<NotificationException>().With(e => e.StatusCode, HttpStatusCode.BadRequest).Create();
+            var jsonResponse = JsonSerializer.Serialize(exception);
             var mockedResponse = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.BadRequest,
-                Content = new StringContent("")
+                Content = new StringContent(jsonResponse)
             };
 
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(mockedResponse);
-
+         
             var client = new HttpClient(_mockMessageHandler.Object)
             {
                 BaseAddress = new Uri("http://localhost:3001/")
@@ -50,15 +58,15 @@ namespace NotificationCenterSdk.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
-            var result = Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model));
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
+            var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(modelInvalido));
+            Assert.Equal(exception.StatusCode, result.StatusCode);
         }
 
         [Fact]
         public async void NotificacaoEnviadaRetornaUmaResponse()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var token = TokenGenerator.GenerateToken(_user);
             var response = _fixture.Create<NotificationResponse>();
 
             var jsonResponse = JsonSerializer.Serialize(response);
@@ -80,7 +88,7 @@ namespace NotificationCenterSdk.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
 
             var result = await sender.SendNotification(model);
 
@@ -92,7 +100,6 @@ namespace NotificationCenterSdk.Tests
         public async void EnviarNotificacaoETokenValidoRetornaResponse()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var token = TokenGenerator.GenerateToken(_user);
             var response = _fixture.Create<NotificationResponse>();
 
             var jsonResponse = JsonSerializer.Serialize(response);
@@ -101,7 +108,7 @@ namespace NotificationCenterSdk.Tests
                 StatusCode = HttpStatusCode.Created,
                 Content = new StringContent(jsonResponse)
             };
-
+     
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(mockedResponse);
@@ -114,9 +121,9 @@ namespace NotificationCenterSdk.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(token), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
 
-            var result = await sender.SendNotification(model, token);
+            var result = await sender.SendNotification(model, _token.ToString());
 
             Assert.NotNull(result);
             Assert.Equal(response.Id, result.Id);
@@ -126,17 +133,8 @@ namespace NotificationCenterSdk.Tests
         public async void EnviarUmTokenInvalidoRetornaErro()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var response = _fixture.Create<NotificationResponse>();
-            var jsonResponse = JsonSerializer.Serialize(response);
-            var mockedResponse = new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.Created,
-                Content = new StringContent(jsonResponse)
-            };
-
-            _mockMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(mockedResponse);
+            var exception = _fixture.Build<AccessTokenException>().With
+                (t => t.Message, new List<string>() { "Access Token inválido." }).Create();
 
             var client = new HttpClient(_mockMessageHandler.Object)
             {
@@ -145,45 +143,39 @@ namespace NotificationCenterSdk.Tests
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
-            var result = Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, "tokenInvalido"));
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
+            var result = await Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, "tokenInvalido"));
+            Assert.Equal(result.Message,exception.Message);
         }
 
         [Fact]
         public async void EnviarUmTokenExpiradoRetornaErro()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var response = _fixture.Create<NotificationResponse>();
-            var jsonResponse = JsonSerializer.Serialize(response);
-            var mockedResponse = new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.Created,
-                Content = new StringContent(jsonResponse)
-            };
+            var exception = _fixture.Build<AccessTokenException>().With
+                (t => t.Message, new List<string>() { "Access Token expirado." }).Create();
 
-            _mockMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(mockedResponse);
 
             var client = new HttpClient(_mockMessageHandler.Object)
             {
                 BaseAddress = new Uri(_baseAddress)
             };
+
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
             var tokenInvalido = TokenGenerator.GenerateExpiredToken(_user);
-            var result = Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, tokenInvalido));
-
+            var result = await Assert.ThrowsAsync<AccessTokenException>(() => sender.SendNotification(model, tokenInvalido));
+            Assert.Equal(exception.Message, result.Message);
         }
 
         [Fact]
         public async void ApiIndisponivelRetornaUmErro()
         {
             var model = _fixture.Create<RequestSendNotification>();
-            var response = _fixture.Create<NotificationResponse>();
-            var jsonResponse = JsonSerializer.Serialize(response);
+            var exception = _fixture.Build<NotificationException>().With
+                    (t => t.StatusCode, HttpStatusCode.InternalServerError).Create();
 
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -193,26 +185,24 @@ namespace NotificationCenterSdk.Tests
             {
                 BaseAddress = new Uri(_baseAddress)
             };
+
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
 
-            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
-            var token = TokenGenerator.GenerateToken(_user);
-            var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model, token));
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
+            var result = await Assert.ThrowsAsync<NotificationException>(() => sender.SendNotification(model, _token.ToString()));
+            Assert.Equal(exception.StatusCode, result.StatusCode);
         }
 
         [Fact]
         public async void AutenticacaoRetornaUmToken()
         {
-            var user = _fixture.Create<UserCredentials>();
-            var token = TokenGenerator.GenerateToken(user);
-
             var mockedResponse = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent("")
             };
-            mockedResponse.Headers.Add("Set-Cookie", $"access_token={token}");
+            mockedResponse.Headers.Add("Set-Cookie", $"access_token={_token}");
 
             _mockMessageHandler.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
@@ -222,12 +212,13 @@ namespace NotificationCenterSdk.Tests
             {
                 BaseAddress = new Uri(_baseAddress)
             };
+
             _httpClientFactory.Setup(_ => _.CreateClient("enginer")).Returns(client);
             _httpClientFactory.Setup(_ => _.CreateClient("auth")).Returns(client);
-            var sender = new NotificationCenter(new MemoryCacheFake(), _httpClientFactory.Object, _user);
+            var sender = new NotificationCenter(_mockMemoryCache.Object, _httpClientFactory.Object, _user);
             var response = await sender.Authenticate();
             Assert.NotNull(response);
-            Assert.Equal(token, response);
+            Assert.Equal(_token.ToString(), response);
         }
     }
 }
