@@ -9,21 +9,21 @@ stages:
 build-job:       
   stage: build
   script:
-    - dotnet build -c Release
+    - dotnet build ./RaroNotifications/-c Release
 
 unit-test-job:   
   stage: test    
   script:
-    - dotnet test
+    - dotnet test ./RaroNotifications/
 
 pack-job:      
   stage: pack  
   script:
-    - dotnet pack -c Release
+    - dotnet pack ./RaroNotifications/ -c Release
 
 publish-job:
   stage: publish
   script:
-    - dotnet nuget push "bin/Release/*.nupkg" --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
+    - dotnet nuget push "./RaroNotifications/bin/Release/*.nupkg" --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
   only:
     - main
