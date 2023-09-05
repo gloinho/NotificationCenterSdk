@@ -7,7 +7,7 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 ## 1) Configuração do appsettings.json
 ```json
 {
-    "NotificationSender": {
+    "NotificationCenter": {
         "AuthBaseUrl": "https://auth-api.example.com",
         "EnginerBaseUrl": "https://enginer-api.example.com",
         "Username": "seu-username",
@@ -20,7 +20,7 @@ RaroNotifications é uma biblioteca responsável por realizar requisições para
 #### Injetando as dependencias manualmente.
 ```csharp
 builder.Services.AddMemoryCache();
-var settings = builder.Configuration.GetRequiredSection("NotificationSender");
+var settings = builder.Configuration.GetRequiredSection("NotificationCenter");
 
 builder.Services.AddHttpClient("auth", options =>
 {
@@ -41,7 +41,7 @@ builder.Services.AddSingleton(provider =>
     };
 });
 
-builder.Services.AddSingleton<INotificationSender, NotificationSender>();
+builder.Services.AddSingleton<INotificationCenter, NotificationCenter>();
 ```
 
 ---
@@ -50,7 +50,7 @@ builder.Services.AddSingleton<INotificationSender, NotificationSender>();
 // Program.cs 
 using RaroNotifications.DependencyInjection;
 
-builder.Services.AddNotificationSender(builder.Configuration);
+builder.Services.AddNotificationCenter(builder.Configuration);
 builder.Services.AddMemoryCache();
 ```
 
@@ -59,16 +59,16 @@ builder.Services.AddMemoryCache();
 ```csharp
     public class ExampleController : ControllerBase
     {
-        private readonly INotificationSender _notificationSender;
-        public ExampleController(INotificationSender notificationSender)
+        private readonly INotificationCenter _NotificationCenter;
+        public ExampleController(INotificationCenter NotificationCenter)
         {
-            _notificationSender = notificationSender;
+            _NotificationCenter = NotificationCenter;
         }
 
         [HttpPost]
         public async Task<ActionResult<NotificationResponse>> SendNotification(RequestSendNotification model)
         {
-            var response = await _notificationSender.SendNotification(model);
+            var response = await _NotificationCenter.SendNotification(model);
             return response;
         }
     }
@@ -78,18 +78,18 @@ builder.Services.AddMemoryCache();
 ```csharp
     public class ExampleController : ControllerBase
     {
-        private readonly INotificationSender _notificationSender;
-        public ExampleController(INotificationSender notificationSender)
+        private readonly INotificationCenter _NotificationCenter;
+        public ExampleController(INotificationCenter NotificationCenter)
         {
-            _notificationSender = notificationSender;
+            _NotificationCenter = NotificationCenter;
         }
 
         [HttpPost]
         public async Task<ActionResult<NotificationResponse>> SendNotification(RequestSendNotification model)
         {
-            var token = await _notificationSender.Authenticate();
+            var token = await _NotificationCenter.Authenticate();
             // Realizar tratativas para armazenamento de token.
-            var response = await _notificationSender.SendNotification(model,token);
+            var response = await _NotificationCenter.SendNotification(model,token);
             return response;
         }
     }
@@ -97,7 +97,7 @@ builder.Services.AddMemoryCache();
 
 # Principais Tipos
 Os principais tipos fornecidos por essa biblioteca são:
-- `NotificationSender` : Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
+- `NotificationCenter` : Classe responsável por realizar as requisições necessárias para autenticação, autorização e envio de notificações.
 - `RequestSendNotification` : Modelo de requisição enviados para o Enginer API para envio de notificação.
 - `RequestReceiverSendNotification`: Modelo de receivers enviados para o Enginer API para envio de notificação.
 - `HbsTemplateParams`: Modelo de parâmetros opcionais enviados para o Enginer API para envio de notificação.
