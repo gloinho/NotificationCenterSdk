@@ -5,7 +5,7 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationCenterSdk", "NotificationCenterSdk.csproj", "{52D77261-BAAE-40CF-B06D-243D41BDEEAE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationCenterSdk.Tests", "..\RaroNotifications.Tests\NotificationCenterSdk.Tests.csproj", "{259DEF1C-B7EA-495E-8654-EEA7A913BA65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationCenterSdk.Tests", "..\NotificationCenterSdk.Tests\NotificationCenterSdk.Tests.csproj", "{2CE0F6E6-BDE9-4644-99F6-30B4099DD385}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{52D77261-BAAE-40CF-B06D-243D41BDEEAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52D77261-BAAE-40CF-B06D-243D41BDEEAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52D77261-BAAE-40CF-B06D-243D41BDEEAE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{259DEF1C-B7EA-495E-8654-EEA7A913BA65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CE0F6E6-BDE9-4644-99F6-30B4099DD385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CE0F6E6-BDE9-4644-99F6-30B4099DD385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CE0F6E6-BDE9-4644-99F6-30B4099DD385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CE0F6E6-BDE9-4644-99F6-30B4099DD385}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
