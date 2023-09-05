@@ -10,17 +10,16 @@ namespace NotificationCenterSdk.Managers
         internal static async Task<string> RetrieveOrCreateAccessToken(this IMemoryCache memoryCache,
             UserCredentials userCredentials, string authUrl, HttpClient httpClient)
         {
-            bool tokenExists = memoryCache.TryGetValue("TOKEN", out string token);
+            bool tokenExists = memoryCache.TryGetValue("TOKEN", out object token);
             if (tokenExists)
             {
-                return token;
+                return token.ToString();
             }
             var tokenModel = await UserAuthenticationManager.FetchAccessToken(userCredentials, authUrl, httpClient);
 
             var options = new MemoryCacheEntryOptions().SetAbsoluteExpiration(tokenModel.ValidTo);
-            memoryCache.Set("TOKEN", tokenModel.Value, options);
-
-            return tokenModel.Value;
+  
+            return memoryCache.Set("TOKEN", tokenModel.Value, options);
         }
     }
 }
