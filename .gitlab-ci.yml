@@ -1,0 +1,29 @@
+image: mcr.microsoft.com/dotnet/core/sdk:6.0
+
+stages:          
+  - build
+  - test
+  - pack
+  - publish
+
+build-job:       
+  stage: build
+  script:
+    - dotnet build -c Release
+
+unit-test-job:   
+  stage: test    
+  script:
+    - dotnet test
+
+pack-job:      
+  stage: pack  
+  script:
+    - dotnet pack -c Release
+
+publish-job:
+  stage: publish
+  script:
+    - dotnet nuget push "bin/Release/*.nupkg" --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
+  only:
+    - main
