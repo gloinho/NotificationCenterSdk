@@ -10,7 +10,7 @@
     <Title>RaroNotifications</Title>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<Version>1.1.3-alpha</Version>
+	<Version>1.1.4-alpha</Version>
 	<Company>Raro Labs</Company>
 	<Authors>Anastácio Gomes</Authors>
 	<Description>RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
