@@ -10,6 +10,13 @@ build-job:
   stage: build
   script:
     - dotnet build ./RaroNotifications/RaroNotifications.sln -c Release
+  artifacts:
+    untracked: false
+    when: on_success
+    expire_in: 30 days
+    paths:
+      - bin/
+      - obj/
 
 unit-test-job:   
   stage: test    
@@ -19,6 +26,8 @@ unit-test-job:
 publish-job:
   stage: publish
   script:
-    - dotnet nuget push "./RaroNotifications/bin/Release/*.nupkg" --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
+    - dotnet nuget push /bin/Release/*.nupkg" --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
+  dependencies:
+    - build-job
   only:
     - main
