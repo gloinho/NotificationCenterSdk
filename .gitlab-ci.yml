@@ -25,7 +25,7 @@ unit-test-job:
 publish-job:
   stage: publish
   script:
-    - dotnet nuget push ./NotificationCenterSdk/bin/Release/*.nupkg --api-key 123 --source https://api.nuget.org/v3/index.json
+    - dotnet nuget push ./NotificationCenterSdk/bin/Release/*.nupkg --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
   dependencies:
     - build-job
   only:
