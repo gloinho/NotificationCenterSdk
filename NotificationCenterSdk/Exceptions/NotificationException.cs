@@ -8,10 +8,6 @@ namespace NotificationCenterSdk.Exceptions
     [Serializable]
     public class NotificationException : Exception
     {
-        public NotificationException() 
-        {
-            
-        }
         public NotificationException(HttpStatusCode? statusCode, string message, DateTime timeStamp, string? detail = null, string? path=null)
         {
             StatusCode = statusCode;
