@@ -16,11 +16,6 @@ unit-test-job:
   script:
     - dotnet test ./RaroNotifications/
 
-pack-job:      
-  stage: pack  
-  script:
-    - dotnet pack ./RaroNotifications/RaroNotifications.sln -c Release
-
 publish-job:
   stage: publish
   script:
