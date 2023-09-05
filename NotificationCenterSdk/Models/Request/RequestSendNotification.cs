@@ -26,7 +26,7 @@ namespace NotificationCenterSdk.Models.Request
         [JsonPropertyName("campaignNameId")]
         public string CampaignNameId { get; set; }
         [JsonPropertyName("parameters")]
-        public HbsTemplateParams? Parameters { get; set; }
+        public HbsTemplateParams Parameters { get; set; }
 
     }
 }
