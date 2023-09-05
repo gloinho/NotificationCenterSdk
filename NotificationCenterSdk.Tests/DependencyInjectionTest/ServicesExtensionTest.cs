@@ -9,11 +9,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NotificationCenterSdk.Tests.Utils;
+using Moq;
 
 namespace NotificationCenterSdk.Tests.DependencyInjectionTest
 {
     public class ServicesExtensionTest
     {
+        private Mock<IMemoryCache> _mockMemoryCache;
+        public ServicesExtensionTest()
+        {
+            object token;
+            _mockMemoryCache = new Mock<IMemoryCache>();
+            _mockMemoryCache.Setup(_ => _.TryGetValue("TOKEN", out token)).Returns(true);
+        }
         [Fact]
         public void MetodoDeExtensaoConfiguraCorretamenteAsDependencias()
         {
@@ -44,7 +52,7 @@ namespace NotificationCenterSdk.Tests.DependencyInjectionTest
             Assert.Equal("yourUsername", userCredentials.Username);
             Assert.Equal("yourPassword", userCredentials.Password);
 
-            var center = new NotificationCenter(new MemoryCacheFake(), httpClientFactory, userCredentials);
+            var center = new NotificationCenter(_mockMemoryCache.Object, httpClientFactory, userCredentials);
             Assert.NotNull(center);
         }
     }

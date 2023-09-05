@@ -1,32 +1,31 @@
 image: mcr.microsoft.com/dotnet/sdk:6.0
 
-stages:          
+stages:
   - build
   - test
-  - pack
   - publish
 
-build-job:       
+build-job:
   stage: build
   script:
-    - dotnet build ./RaroNotifications/RaroNotifications.sln -c Release
+    - dotnet build ./NotificationCenterSdk/NotificationCenter.sln -c Release
   artifacts:
     untracked: false
     when: on_success
     expire_in: 30 days
     paths:
-      - ./RaroNotifications/bin/
-      - ./RaroNotifications/obj/
+      - ./NotificationCenterSdk/obj/
+      - ./NotificationCenterSdk/bin/
 
-unit-test-job:   
-  stage: test    
+unit-test-job:
+  stage: test
   script:
-    - dotnet test ./RaroNotifications/
+    - dotnet test ./NotificationCenterSdk/NotificationCenter.sln
 
 publish-job:
   stage: publish
   script:
-    - dotnet nuget push ./RaroNotifications/bin/Release/*.nupkg --api-key $NUGET_API --source https://api.nuget.org/v3/index.json
+    - dotnet nuget push ./NotificationCenterSdk/bin/Release/*.nupkg --api-key 123 --source https://api.nuget.org/v3/index.json
   dependencies:
     - build-job
   only:
