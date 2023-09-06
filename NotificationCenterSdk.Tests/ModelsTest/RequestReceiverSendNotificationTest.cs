@@ -11,7 +11,7 @@ namespace NotificationCenterSdk.Tests.ModelsTest
     public class RequestReceiverSendNotificationTest
     {
         [Fact]
-        public void CriarUmRequestReceiverSendNotificationComTodasAsPropriedadesNulasGeraErro()
+        public void CriarUmRequestReceiverSendNotificationComTodasAsPropriedadesNulasLancaExcecao()
         {
             Assert.Throws<NotificationException>(() => new RequestReceiverSendNotification(
                 "", "",  null, null));
