@@ -19,6 +19,6 @@ namespace NotificationCenterSdk.Models.Request
         /// <summary>
         /// Obtém ou define os parâmetros opcionais a serem enviados para a Enginer API.
         /// </summary>
-        public Dictionary<string, string> Parameters { get; set; }
+        public Dictionary<string, string>? Parameters { get; set; }
     }
 }
