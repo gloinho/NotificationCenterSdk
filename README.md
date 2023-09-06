@@ -1,6 +1,6 @@
 # Sobre
 
-RaroNotifications é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
+NotificationCenterSdk é uma biblioteca responsável por realizar requisições para as API's do Notifications Center.
 
 # Como Usar
 
@@ -45,10 +45,10 @@ builder.Services.AddSingleton<INotificationCenter, NotificationCenter>();
 ```
 
 ---
-#### Utilizando a extensão `RaroNotifications.DependencyInjection`
+#### Utilizando a extensão `NotificationCenterSdk.DependencyInjection`
 ```csharp
 // Program.cs 
-using RaroNotifications.DependencyInjection;
+using NotificationCenterSdk.DependencyInjection;
 
 builder.Services.AddNotificationCenter(builder.Configuration);
 builder.Services.AddMemoryCache();
