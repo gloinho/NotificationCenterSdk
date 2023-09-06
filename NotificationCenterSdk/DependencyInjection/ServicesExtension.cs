@@ -7,13 +7,13 @@ using System;
 namespace NotificationCenterSdk.DependencyInjection
 {
     /// <summary>
-    /// Classe que realiza o DI e configurações necessárias. <see cref="NotificationCenter"/>
+    /// Classe responsável por realizar a configuração de DI e as configurações necessárias para o uso da classe <see cref="NotificationCenter"/>.
     /// </summary>
     public static class ServicesExtension
     {
         /// <summary>
-        /// Extension Method para realizar as configurações necessárias da classe <see cref="NotificationCenter"/>.
-        /// É necessário configurar o appsettings.json corretamente de acordo com o exemplo abaixo:
+        /// Extension Method para configurar o DI e as configurações necessárias para a classe <see cref="NotificationCenter"/>.
+        /// Para usar este método, é necessário configurar o appsettings.json corretamente, conforme o exemplo abaixo:
         /// <code>
         /// {
         ///     "NotificationCenter": {
@@ -25,8 +25,8 @@ namespace NotificationCenterSdk.DependencyInjection
         /// }
         /// </code>
         /// </summary>
-        /// <param name="configuration">IConfiguration da aplicação.</param>
-        /// <param name="services">ISeviceCollection da aplicação.</param>
+        /// <param name="configuration">A instância de IConfiguration da aplicação.</param>
+        /// <param name="services">A instância de IServiceCollection da aplicação.</param>
         public static void AddNotificationCenter(this IServiceCollection services, IConfiguration configuration)
         {
             var settings = configuration.GetRequiredSection("NotificationCenter");

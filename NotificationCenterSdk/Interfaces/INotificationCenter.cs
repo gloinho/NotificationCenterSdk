@@ -6,42 +6,37 @@ using System.Threading.Tasks;
 namespace NotificationCenterSdk.Interfaces
 {
     /// <summary>
-    /// Interface do <see cref="NotificationCenter"/>.
+    /// Interface para comunicação com o serviço de notificação.
     /// </summary>
     public interface INotificationCenter
     {
         /// <summary>
-        /// Realiza requisição para o envio de uma notificação. A autenticação do usuário é realizada de maneira automática e 
-        /// o Access Token (JWT) é salvo no Memory Cache da aplicação com a key="TOKEN" com validade igual ao key="exp" do JWT.
+        /// Envia uma notificação para o serviço de notificação. A autenticação do usuário é realizada automaticamente,
+        /// e o Access Token (JWT) é armazenado em cache com a chave "TOKEN", com base no "exp" do JWT.
         /// </summary>
-        /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
-        /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
-        /// <exception cref="NotificationException">
-        /// Campos de <paramref name="notification"/> inválidos.
-        /// </exception> 
-        /// <exception cref="CredentialsException">
-        /// Credenciais inválidas.
-        /// </exception>  
-        /// <exception cref="AccessTokenException">
-        /// Access Token inexistente ou inacessível.
-        /// </exception>
+        /// <param name="notification">Instância da classe <see cref="RequestSendNotification"/> que representa a notificação a ser serializada e enviada na requisição.</param>
+        /// <returns>Instância da classe <see cref="NotificationResponse"/> que representa a resposta do serviço de notificação.</returns>
+        /// <exception cref="NotificationException">Lançada quando os campos de <paramref name="notification"/> são inválidos ou ocorre um erro no servidor.</exception>
+        /// <exception cref="CredentialsException">Lançada quando as credenciais são inválidas.</exception>
+        /// <exception cref="AccessTokenException">Lançada se o Access Token for inexistente ou inacessível. </exception>
         public Task<NotificationResponse> SendNotification(RequestSendNotification notification);
+
         /// <summary>
-        /// Realiza requisição para o envio de uma notificação.
+        /// Envia uma notificação para o serviço de notificação usando um token JWT de autenticação.
         /// </summary>
-        /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
-        /// <param name="accessToken">O token JWT para realizar a autenticação no Enginer.</param>
-        /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
-        /// <exception cref="NotificationException">
-        /// Campos de <paramref name="notification"/> inválidos ou erro de servidor.
-        /// </exception>
-        /// <exception cref="CredentialsException">
-        /// Credenciais inválidas.
-        /// </exception>  
-        /// <exception cref="AccessTokenException">
-        /// Access Token inválido, expirado ou não resgatado.
-        /// </exception>
+        /// <param name="notification">Instância da classe <see cref="RequestSendNotification"/> que representa a notificação a ser serializada e enviada na requisição.</param>
+        /// <param name="accessToken">Token JWT usado para autenticação no serviço de notificação.</param>
+        /// <returns>Instância da classe <see cref="NotificationResponse"/> que representa a resposta do serviço de notificação.</returns>
+        /// <exception cref="NotificationException">Lançada quando os campos de <paramref name="notification"/> são inválidos ou ocorre um erro no servidor.</exception>
+        /// <exception cref="CredentialsException">Lançada quando as credenciais são inválidas.</exception>
+        /// <exception cref="AccessTokenException">Lançada quando o Access Token é inválido, expirou ou não foi recuperado.</exception>
         public Task<NotificationResponse> SendNotification(RequestSendNotification notification, string accessToken);
+        /// <summary>
+        /// Realiza a autenticação do usuário e retorna o Access Token (JWT) necessário para o envio de notificações.
+        /// </summary>
+        /// <returns>Access Token (JWT) necessário para o envio de notificações.</returns>
+        /// <exception cref="CredentialsException">Lançada se as credenciais fornecidas forem inválidas durante a autenticação.</exception>
+        /// <exception cref="AccessTokenException">Lançada se o Access Token não puder ser recuperado durante a autenticação.</exception>
         public Task<string> Authenticate();
     }
 }

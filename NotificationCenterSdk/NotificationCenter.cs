@@ -28,16 +28,20 @@ namespace NotificationCenterSdk
         private readonly UserCredentials _userCredentials;
 
         /// <summary>
-        /// Inicializa uma nova instancia de <see cref="NotificationCenter"/>.
+        /// Inicializa uma nova instancia da classe <see cref="NotificationCenter"/>.
         /// </summary>
-        /// <param name="memoryCache">A instancia de <see cref="IMemoryCache"/> injetada do MemoryCache.</param>
-        /// <param name="httpClientFactory">A instancia <see cref="IHttpClientFactory"/> injetada do HttpClientFactory.</param>
-        /// <param name="username">O usuário a ser autenticado.</param>
-        /// <param name="password">A senha do usuário a ser autenticado</param>
+        /// <param name="memoryCache">A instancia de <see cref="IMemoryCache"/> injetada.</param>
+        /// <param name="httpClientFactory">A instancia <see cref="IHttpClientFactory"/> injetada.</param>
+        /// <param name="userCredentials">A instancia de <see cref="UserCredentials"/> com as credenciais do usuário a ser autenticado.</param>
         public NotificationCenter(IMemoryCache memoryCache, IHttpClientFactory httpClientFactory, UserCredentials userCredentials)
         {
-            _userCredentials = userCredentials;
-            _memoryCache = memoryCache;
+            if (httpClientFactory == null)
+            {
+                throw new ArgumentNullException(nameof(httpClientFactory), "httpClientFactory não pode ser nulo.");
+            }
+
+            _userCredentials = userCredentials ?? throw new ArgumentNullException(nameof(userCredentials), "userCredentials não pode ser nulo.");
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache), "memoryCache não pode ser nulo.");
             _authHttpClient = httpClientFactory.CreateClient("auth");
             _enginerHttpClient = httpClientFactory.CreateClient("enginer");
         }
@@ -48,15 +52,9 @@ namespace NotificationCenterSdk
         /// </summary>
         /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
         /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
-        /// <exception cref="NotificationException">
-        /// Campos de <paramref name="notification"/> inválidos.
-        /// </exception>
-        /// <exception cref="CredentialsException">
-        /// Credenciais inválidas.
-        /// </exception>  
-        /// <exception cref="AccessTokenException">
-        /// Access Token inexistente ou inacessível.
-        /// </exception>
+        /// <exception cref="NotificationException">Lançada se campos de <paramref name="notification"/> forem inválidos ou se houver erro de servidor.</exception>
+        /// <exception cref="CredentialsException">Lançada se as credenciais forem inválidas.</exception>
+        /// <exception cref="AccessTokenException">Lançada se o Access Token for inexistente ou inacessível.</exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification)
         {
             string accessToken = await _memoryCache.RetrieveOrCreateAccessToken(_userCredentials, _authEndpoint, _authHttpClient);
@@ -77,15 +75,8 @@ namespace NotificationCenterSdk
         /// <param name="notification">A instancia da classe <see cref="RequestSendNotification"/> que representa uma notificação a ser serializada e enviada na requisição</param>
         /// <param name="accessToken">O token JWT para realizar a autenticação no Enginer.</param>
         /// <returns>A instancia da classe <see cref="NotificationResponse"/> representando o retorno da Enginer API.</returns>
-        /// <exception cref="NotificationException">
-        /// Campos de <paramref name="notification"/> inválidos ou erro de servidor.
-        /// </exception>
-        /// <exception cref="CredentialsException">
-        /// Credenciais inválidas.
-        /// </exception>  
-        /// <exception cref="AccessTokenException">
-        /// Access Token inválido, expirado ou não resgatado.
-        /// </exception>
+        /// <exception cref="NotificationException"> Lançada se campos de <paramref name="notification"/> forem inválidos ou se houver erro de servidor. </exception>
+        /// <exception cref="AccessTokenException"> Lançada se o Access Token for inválido, expirado ou não resgatado. </exception>
         public async Task<NotificationResponse> SendNotification(RequestSendNotification notification, string accessToken)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -117,6 +108,8 @@ namespace NotificationCenterSdk
         /// </summary>
         /// <returns>O AccessToken(JWT) necessário para realizar o envio de notificação para o 
         /// <see cref="SendNotification(RequestSendNotification, string)"/></returns>
+        /// <exception cref="CredentialsException">Lançada se as credenciais fornecidas forem inválidas durante a autenticação.</exception>  
+        /// <exception cref="AccessTokenException">Lançada se não for possível resgatar o Access Token durante a autenticação.</exception>
         public async Task<string> Authenticate()
         {
             var tokenModel = await UserAuthenticationManager.FetchAccessToken(_userCredentials, _authEndpoint, _authHttpClient);
