@@ -33,6 +33,7 @@ namespace NotificationCenterSdk.Models.Request
         /// Obtém ou define os parâmetros opcionais para a notificação.
         /// </summary>
         [JsonPropertyName("parameters")]
-        public HbsTemplateParams? Parameters { get; set; }
+        public HbsTemplateParams Parameters { get; set; }
+
     }
 }
